@@ -108,8 +108,6 @@ abstract class AbstractCommand implements CommandInterface
 	public function __construct()
 	{
 		$this->definition = new InputDefinition;
-
-		$this->initialise();
 	}
 
 	/**
@@ -287,17 +285,6 @@ abstract class AbstractCommand implements CommandInterface
 		}
 
 		return $this->synopsis[$key];
-	}
-
-	/**
-	 * Initialise the command.
-	 *
-	 * @return  void
-	 *
-	 * @since   __DEPLOY_VERSION__
-	 */
-	protected function initialise()
-	{
 	}
 
 	/**
