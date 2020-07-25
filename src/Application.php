@@ -728,6 +728,7 @@ class Application extends AbstractApplication
 			[
 				new InputArgument('command', InputArgument::REQUIRED, 'The command to execute'),
 				new InputOption('--help', '-h', InputOption::VALUE_NONE, 'Display the help information'),
+				new InputOption('--version', '-V', InputOption::VALUE_NONE, 'Displays the application version'),
 				new InputOption('--quiet', '-q', InputOption::VALUE_NONE, 'Flag indicating that all output should be silenced'),
 				new InputOption(
 					'--verbose',
