@@ -1,6 +1,9 @@
-# The Console Package [![Build Status](https://travis-ci.org/joomla-framework/console.png?branch=master)](https://travis-ci.org/joomla-framework/console)
+# The Console Package [![Build Status](https://ci.joomla.org/api/badges/joomla-framework/console/status.svg?ref=refs/heads/2.0-dev)](https://ci.joomla.org/joomla-framework/console)
 
-[![Latest Stable Version](https://poser.pugx.org/joomla/console/v/stable)](https://packagist.org/packages/joomla/console) [![Total Downloads](https://poser.pugx.org/joomla/console/downloads)](https://packagist.org/packages/joomla/console) [![Latest Unstable Version](https://poser.pugx.org/joomla/console/v/unstable)](https://packagist.org/packages/joomla/console) [![License](https://poser.pugx.org/joomla/console/license)](https://packagist.org/packages/joomla/console)
+[![Latest Stable Version](https://poser.pugx.org/joomla/console/v/stable)](https://packagist.org/packages/joomla/console)
+[![Total Downloads](https://poser.pugx.org/joomla/console/downloads)](https://packagist.org/packages/joomla/console)
+[![Latest Unstable Version](https://poser.pugx.org/joomla/console/v/unstable)](https://packagist.org/packages/joomla/console)
+[![License](https://poser.pugx.org/joomla/console/license)](https://packagist.org/packages/joomla/console)
 
 The Console package provides the infrastructure for building command line applications with the Joomla! Framework.
 
