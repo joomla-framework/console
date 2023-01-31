@@ -19,96 +19,95 @@ use Joomla\Console\ConsoleEvents;
  */
 class CommandErrorEvent extends ConsoleEvent
 {
-	/**
-	 * The Throwable object with the error data.
-	 *
-	 * @var    \Throwable
-	 * @since  2.0.0
-	 */
-	private $error;
+    /**
+     * The Throwable object with the error data.
+     *
+     * @var    \Throwable
+     * @since  2.0.0
+     */
+    private $error;
 
-	/**
-	 * The exit code to use for the application.
-	 *
-	 * @var    integer|null
-	 * @since  2.0.0
-	 */
-	private $exitCode;
+    /**
+     * The exit code to use for the application.
+     *
+     * @var    integer|null
+     * @since  2.0.0
+     */
+    private $exitCode;
 
-	/**
-	 * Event constructor.
-	 *
-	 * @param   \Throwable            $error        The Throwable object with the error data.
-	 * @param   Application           $application  The active application.
-	 * @param   AbstractCommand|null  $command      The command being executed.
-	 *
-	 * @since   2.0.0
-	 */
-	public function __construct(\Throwable $error, Application $application, ?AbstractCommand $command = null)
-	{
-		parent::__construct(ConsoleEvents::COMMAND_ERROR, $application, $command);
+    /**
+     * Event constructor.
+     *
+     * @param   \Throwable            $error        The Throwable object with the error data.
+     * @param   Application           $application  The active application.
+     * @param   AbstractCommand|null  $command      The command being executed.
+     *
+     * @since   2.0.0
+     */
+    public function __construct(\Throwable $error, Application $application, ?AbstractCommand $command = null)
+    {
+        parent::__construct(ConsoleEvents::COMMAND_ERROR, $application, $command);
 
-		$this->error = $error;
-	}
+        $this->error = $error;
+    }
 
-	/**
-	 * Get the error object.
-	 *
-	 * @return  \Throwable
-	 *
-	 * @since   2.0.0
-	 */
-	public function getError(): \Throwable
-	{
-		return $this->error;
-	}
+    /**
+     * Get the error object.
+     *
+     * @return  \Throwable
+     *
+     * @since   2.0.0
+     */
+    public function getError(): \Throwable
+    {
+        return $this->error;
+    }
 
-	/**
-	 * Gets the exit code.
-	 *
-	 * @return  integer
-	 *
-	 * @since   2.0.0
-	 */
-	public function getExitCode(): int
-	{
-		if ($this->exitCode !== null)
-		{
-			return $this->exitCode;
-		}
+    /**
+     * Gets the exit code.
+     *
+     * @return  integer
+     *
+     * @since   2.0.0
+     */
+    public function getExitCode(): int
+    {
+        if ($this->exitCode !== null) {
+            return $this->exitCode;
+        }
 
-		return \is_int($this->error->getCode()) && $this->error->getCode() !== 0 ? $this->error->getCode() : 1;
-	}
+        return \is_int($this->error->getCode()) && $this->error->getCode() !== 0 ? $this->error->getCode() : 1;
+    }
 
-	/**
-	 * Set the error object.
-	 *
-	 * @param   \Throwable  $error  The error object to set to the event.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function setError(\Throwable $error): void
-	{
-		$this->error = $error;
-	}
+    /**
+     * Set the error object.
+     *
+     * @param   \Throwable  $error  The error object to set to the event.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function setError(\Throwable $error): void
+    {
+        $this->error = $error;
+    }
 
-	/**
-	 * Sets the exit code.
-	 *
-	 * @param   integer  $exitCode  The command exit code.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function setExitCode(int $exitCode): void
-	{
-		$this->exitCode = $exitCode;
+    /**
+     * Sets the exit code.
+     *
+     * @param   integer  $exitCode  The command exit code.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function setExitCode(int $exitCode): void
+    {
+        $this->exitCode = $exitCode;
 
-		$r = new \ReflectionProperty($this->error, 'code');
-		$r->setAccessible(true);
-		$r->setValue($this->error, $this->exitCode);
-	}
+        $r = new \ReflectionProperty($this->error, 'code');
+        $r->setAccessible(true);
+        $r->setValue($this->error, $this->exitCode);
+    }
 }

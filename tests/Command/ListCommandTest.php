@@ -18,82 +18,76 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ListCommandTest extends TestCase
 {
-	/**
-	 * @covers  Joomla\Console\Command\ListCommand
-	 * @uses    Joomla\Console\Application
-	 * @uses    Joomla\Console\Command\AbstractCommand
-	 * @uses    Joomla\Console\Command\HelpCommand
-	 * @uses    Joomla\Console\Descriptor\ApplicationDescription
-	 * @uses    Joomla\Console\Descriptor\TextDescriptor
-	 * @uses    Joomla\Console\Helper\DescriptorHelper
-	 */
-	public function testTheCommandIsExecuted()
-	{
-		$input  = new ArrayInput(
-			[
-				'command' => 'list',
-			]
-		);
-		$output = new BufferedOutput;
+    /**
+     * @covers  Joomla\Console\Command\ListCommand
+     * @uses    Joomla\Console\Application
+     * @uses    Joomla\Console\Command\AbstractCommand
+     * @uses    Joomla\Console\Command\HelpCommand
+     * @uses    Joomla\Console\Descriptor\ApplicationDescription
+     * @uses    Joomla\Console\Descriptor\TextDescriptor
+     * @uses    Joomla\Console\Helper\DescriptorHelper
+     */
+    public function testTheCommandIsExecuted()
+    {
+        $input  = new ArrayInput(
+            [
+                'command' => 'list',
+            ]
+        );
+        $output = new BufferedOutput();
 
-		$application = new Application($input, $output);
+        $application = new Application($input, $output);
 
-		$command = new ListCommand;
-		$command->setApplication($application);
+        $command = new ListCommand();
+        $command->setApplication($application);
 
-		$this->assertSame(0, $command->execute($input, $output));
+        $this->assertSame(0, $command->execute($input, $output));
 
-		$screenOutput = $output->fetch();
+        $screenOutput = $output->fetch();
 
-		if (method_exists($this, 'assertMatchesRegularExpression'))
-		{
-			$this->assertMatchesRegularExpression('/help\s{2,}Show the help for a command/', $screenOutput);
-		}
-		else
-		{
-			$this->assertRegExp('/help\s{2,}Show the help for a command/', $screenOutput);
-		}
-	}
+        if (method_exists($this, 'assertMatchesRegularExpression')) {
+            $this->assertMatchesRegularExpression('/help\s{2,}Show the help for a command/', $screenOutput);
+        } else {
+            $this->assertRegExp('/help\s{2,}Show the help for a command/', $screenOutput);
+        }
+    }
 
-	/**
-	 * @covers  Joomla\Console\Command\ListCommand
-	 * @uses    Joomla\Console\Application
-	 * @uses    Joomla\Console\Command\AbstractCommand
-	 * @uses    Joomla\Console\Command\HelpCommand
-	 * @uses    Joomla\Console\Descriptor\ApplicationDescription
-	 * @uses    Joomla\Console\Descriptor\TextDescriptor
-	 * @uses    Joomla\Console\Helper\DescriptorHelper
-	 */
-	public function testTheCommandIsExecutedForANamespace()
-	{
-		$input  = new ArrayInput(
-			[
-				'command'   => 'list',
-				'namespace' => 'test',
-			]
-		);
-		$output = new BufferedOutput;
+    /**
+     * @covers  Joomla\Console\Command\ListCommand
+     * @uses    Joomla\Console\Application
+     * @uses    Joomla\Console\Command\AbstractCommand
+     * @uses    Joomla\Console\Command\HelpCommand
+     * @uses    Joomla\Console\Descriptor\ApplicationDescription
+     * @uses    Joomla\Console\Descriptor\TextDescriptor
+     * @uses    Joomla\Console\Helper\DescriptorHelper
+     */
+    public function testTheCommandIsExecutedForANamespace()
+    {
+        $input  = new ArrayInput(
+            [
+                'command'   => 'list',
+                'namespace' => 'test',
+            ]
+        );
+        $output = new BufferedOutput();
 
-		$namespacedCommand = new NamespacedCommand;
-		$namespacedCommand->setDescription('A testing command');
+        $namespacedCommand = new NamespacedCommand();
+        $namespacedCommand->setDescription('A testing command');
 
-		$application = new Application($input, $output);
-		$application->addCommand($namespacedCommand);
+        $application = new Application($input, $output);
+        $application->addCommand($namespacedCommand);
 
-		$command = new ListCommand;
-		$command->setApplication($application);
+        $command = new ListCommand();
+        $command->setApplication($application);
 
-		$this->assertSame(0, $command->execute($input, $output));
+        $this->assertSame(0, $command->execute($input, $output));
 
-		$screenOutput = $output->fetch();
+        $screenOutput = $output->fetch();
 
-		if (method_exists($this, 'assertMatchesRegularExpression'))
-		{
-			$this->assertMatchesRegularExpression('/test:namespaced\s{2,}A testing command/', $screenOutput);
-		}
-		else
-		{
-			$this->assertRegExp('/test:namespaced\s{2,}A testing command/', $screenOutput);
-		}
-	}
+        if (method_exists($this, 'assertMatchesRegularExpression')) {
+            $this->assertMatchesRegularExpression('/test:namespaced\s{2,}A testing command/', $screenOutput);
+        } else {
+            $this->assertRegExp('/test:namespaced\s{2,}A testing command/', $screenOutput);
+        }
+    }
 }

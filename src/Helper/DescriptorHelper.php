@@ -19,31 +19,31 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DescriptorHelper extends Helper
 {
-	/**
-	 * Describes an object if supported.
-	 *
-	 * @param   OutputInterface  $output   The output object to use.
-	 * @param   object           $object   The object to describe.
-	 * @param   array            $options  Options for the descriptor.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function describe(OutputInterface $output, $object, array $options = [])
-	{
-		(new TextDescriptor)->describe($output, $object, $options);
-	}
+    /**
+     * Describes an object if supported.
+     *
+     * @param   OutputInterface  $output   The output object to use.
+     * @param   object           $object   The object to describe.
+     * @param   array            $options  Options for the descriptor.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function describe(OutputInterface $output, $object, array $options = [])
+    {
+        (new TextDescriptor())->describe($output, $object, $options);
+    }
 
-	/**
-	 * Returns the canonical name of this helper.
-	 *
-	 * @return  string  The canonical name
-	 *
-	 * @since   2.0.0
-	 */
-	public function getName()
-	{
-		return 'descriptor';
-	}
+    /**
+     * Returns the canonical name of this helper.
+     *
+     * @return  string  The canonical name
+     *
+     * @since   2.0.0
+     */
+    public function getName()
+    {
+        return 'descriptor';
+    }
 }

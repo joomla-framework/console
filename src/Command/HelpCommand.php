@@ -20,84 +20,83 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HelpCommand extends AbstractCommand
 {
-	/**
-	 * The default command name
-	 *
-	 * @var    string
-	 * @since  2.0.0
-	 */
-	protected static $defaultName = 'help';
+    /**
+     * The default command name
+     *
+     * @var    string
+     * @since  2.0.0
+     */
+    protected static $defaultName = 'help';
 
-	/**
-	 * The command to process help for
-	 *
-	 * @var    AbstractCommand|null
-	 * @since  2.0.0
-	 */
-	private $command;
+    /**
+     * The command to process help for
+     *
+     * @var    AbstractCommand|null
+     * @since  2.0.0
+     */
+    private $command;
 
-	/**
-	 * Configure the command.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	protected function configure(): void
-	{
-		$this->setDescription('Show the help for a command');
-		$this->setHelp(<<<'EOF'
+    /**
+     * Configure the command.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    protected function configure(): void
+    {
+        $this->setDescription('Show the help for a command');
+        $this->setHelp(
+            <<<'EOF'
 The <info>%command.name%</info> command displays a command's help information:
 
 <info>php %command.full_name% list</info>
 
 To display the list of available commands, please use the <info>list</info> command.
 EOF
-		);
+        );
 
-		$this->addArgument('command_name', InputArgument::OPTIONAL, 'The command name', 'help');
-	}
+        $this->addArgument('command_name', InputArgument::OPTIONAL, 'The command name', 'help');
+    }
 
-	/**
-	 * Internal function to execute the command.
-	 *
-	 * @param   InputInterface   $input   The input to inject into the command.
-	 * @param   OutputInterface  $output  The output to inject into the command.
-	 *
-	 * @return  integer  The command exit code
-	 *
-	 * @since   2.0.0
-	 */
-	protected function doExecute(InputInterface $input, OutputInterface $output): int
-	{
-		if (!$this->command)
-		{
-			$this->command = $this->getApplication()->getCommand($input->getArgument('command_name'));
-		}
+    /**
+     * Internal function to execute the command.
+     *
+     * @param   InputInterface   $input   The input to inject into the command.
+     * @param   OutputInterface  $output  The output to inject into the command.
+     *
+     * @return  integer  The command exit code
+     *
+     * @since   2.0.0
+     */
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        if (!$this->command) {
+            $this->command = $this->getApplication()->getCommand($input->getArgument('command_name'));
+        }
 
-		$descriptor = new DescriptorHelper;
+        $descriptor = new DescriptorHelper();
 
-		if ($this->getHelperSet() !== null)
-		{
-			$this->getHelperSet()->set($descriptor);
-		}
+        if ($this->getHelperSet() !== null) {
+            $this->getHelperSet()->set($descriptor);
+        }
 
-		$descriptor->describe($output, $this->command);
+        $descriptor->describe($output, $this->command);
 
-		return 0;
-	}
+        return 0;
+    }
 
-	/**
-	 * Set the command whose help is being presented.
-	 *
-	 * @param   AbstractCommand  $command  The command to process help for.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function setCommand(AbstractCommand $command): void
-	{
-		$this->command = $command;
-	}
+    /**
+     * Set the command whose help is being presented.
+     *
+     * @param   AbstractCommand  $command  The command to process help for.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function setCommand(AbstractCommand $command): void
+    {
+        $this->command = $command;
+    }
 }

@@ -15,16 +15,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class AnonymousCommand extends AbstractCommand
 {
-	/**
-	 * Internal function to execute the command.
-	 *
-	 * @param   InputInterface   $input   The input to inject into the command.
-	 * @param   OutputInterface  $output  The output to inject into the command.
-	 *
-	 * @return  integer  The command exit code
-	 */
-	protected function doExecute(InputInterface $input, OutputInterface $output): int
-	{
-		return 0;
-	}
+    /**
+     * Internal function to execute the command.
+     *
+     * @param   InputInterface   $input   The input to inject into the command.
+     * @param   OutputInterface  $output  The output to inject into the command.
+     *
+     * @return  integer  The command exit code
+     */
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        return 0;
+    }
 }

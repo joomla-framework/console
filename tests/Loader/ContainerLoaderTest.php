@@ -18,85 +18,85 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
  */
 class ContainerLoaderTest extends TestCase
 {
-	/**
-	 * @var  ContainerInterface|MockObject
-	 */
-	protected $container;
+    /**
+     * @var  ContainerInterface|MockObject
+     */
+    protected $container;
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 *
-	 * @return  void
-	 */
-	protected function setUp(): void
-	{
-		$this->container = $this->createMock(ContainerInterface::class);
-	}
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     *
+     * @return  void
+     */
+    protected function setUp(): void
+    {
+        $this->container = $this->createMock(ContainerInterface::class);
+    }
 
-	/**
-	 * @covers  Joomla\Console\Loader\ContainerLoader
-	 * @uses    Joomla\Console\Command\AbstractCommand
-	 */
-	public function testTheLoaderRetrievesACommand()
-	{
-		$command = new NamespacedCommand;
+    /**
+     * @covers  Joomla\Console\Loader\ContainerLoader
+     * @uses    Joomla\Console\Command\AbstractCommand
+     */
+    public function testTheLoaderRetrievesACommand()
+    {
+        $command = new NamespacedCommand();
 
-		$commandName = $command->getName();
-		$serviceId   = 'test.loader';
+        $commandName = $command->getName();
+        $serviceId   = 'test.loader';
 
-		$this->container->expects($this->once())
-			->method('has')
-			->with($serviceId)
-			->willReturn(true);
+        $this->container->expects($this->once())
+            ->method('has')
+            ->with($serviceId)
+            ->willReturn(true);
 
-		$this->container->expects($this->once())
-			->method('get')
-			->with($serviceId)
-			->willReturn($command);
+        $this->container->expects($this->once())
+            ->method('get')
+            ->with($serviceId)
+            ->willReturn($command);
 
-		$this->assertSame(
-			$command,
-			(new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName)
-		);
-	}
+        $this->assertSame(
+            $command,
+            (new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName)
+        );
+    }
 
-	/**
-	 * @covers  Joomla\Console\Loader\ContainerLoader
-	 */
-	public function testTheLoaderDoesNotRetrieveAnUnknownCommand()
-	{
-		$this->expectException(CommandNotFoundException::class);
+    /**
+     * @covers  Joomla\Console\Loader\ContainerLoader
+     */
+    public function testTheLoaderDoesNotRetrieveAnUnknownCommand()
+    {
+        $this->expectException(CommandNotFoundException::class);
 
-		$commandName = 'test:loader';
-		$serviceId   = 'test.loader';
+        $commandName = 'test:loader';
+        $serviceId   = 'test.loader';
 
-		$this->container->expects($this->once())
-			->method('has')
-			->with($serviceId)
-			->willReturn(false);
+        $this->container->expects($this->once())
+            ->method('has')
+            ->with($serviceId)
+            ->willReturn(false);
 
-		$this->container->expects($this->never())
-			->method('get');
+        $this->container->expects($this->never())
+            ->method('get');
 
-		(new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName);
-	}
+        (new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName);
+    }
 
-	/**
-	 * @covers  Joomla\Console\Loader\ContainerLoader
-	 */
-	public function testTheLoaderHasACommand()
-	{
-		$commandName = 'test:loader';
-		$serviceId   = 'test.loader';
+    /**
+     * @covers  Joomla\Console\Loader\ContainerLoader
+     */
+    public function testTheLoaderHasACommand()
+    {
+        $commandName = 'test:loader';
+        $serviceId   = 'test.loader';
 
-		$this->container->expects($this->once())
-			->method('has')
-			->with($serviceId)
-			->willReturn(true);
+        $this->container->expects($this->once())
+            ->method('has')
+            ->with($serviceId)
+            ->willReturn(true);
 
-		$this->assertTrue(
-			(new ContainerLoader($this->container, [$commandName => $serviceId]))->has($commandName)
-		);
-	}
+        $this->assertTrue(
+            (new ContainerLoader($this->container, [$commandName => $serviceId]))->has($commandName)
+        );
+    }
 }

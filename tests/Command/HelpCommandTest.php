@@ -18,61 +18,61 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class HelpCommandTest extends TestCase
 {
-	/**
-	 * @covers  Joomla\Console\Command\HelpCommand
-	 * @uses    Joomla\Console\Application
-	 * @uses    Joomla\Console\Command\AbstractCommand
-	 * @uses    Joomla\Console\Command\ListCommand
-	 * @uses    Joomla\Console\Descriptor\TextDescriptor
-	 * @uses    Joomla\Console\Helper\DescriptorHelper
-	 */
-	public function testTheCommandIsExecutedWithACommandName()
-	{
-		$input  = new ArrayInput(
-			[
-				'command'      => 'help',
-				'command_name' => 'list',
-			]
-		);
-		$output = new BufferedOutput;
+    /**
+     * @covers  Joomla\Console\Command\HelpCommand
+     * @uses    Joomla\Console\Application
+     * @uses    Joomla\Console\Command\AbstractCommand
+     * @uses    Joomla\Console\Command\ListCommand
+     * @uses    Joomla\Console\Descriptor\TextDescriptor
+     * @uses    Joomla\Console\Helper\DescriptorHelper
+     */
+    public function testTheCommandIsExecutedWithACommandName()
+    {
+        $input  = new ArrayInput(
+            [
+                'command'      => 'help',
+                'command_name' => 'list',
+            ]
+        );
+        $output = new BufferedOutput();
 
-		$application = new Application($input, $output);
+        $application = new Application($input, $output);
 
-		$command = new HelpCommand;
-		$command->setApplication($application);
+        $command = new HelpCommand();
+        $command->setApplication($application);
 
-		$this->assertSame(0, $command->execute($input, $output));
+        $this->assertSame(0, $command->execute($input, $output));
 
-		$screenOutput = $output->fetch();
-		$this->assertStringContainsString('list [<namespace>]', $screenOutput);
-	}
+        $screenOutput = $output->fetch();
+        $this->assertStringContainsString('list [<namespace>]', $screenOutput);
+    }
 
-	/**
-	 * @covers  Joomla\Console\Command\HelpCommand
-	 * @uses    Joomla\Console\Application
-	 * @uses    Joomla\Console\Command\AbstractCommand
-	 * @uses    Joomla\Console\Command\ListCommand
-	 * @uses    Joomla\Console\Descriptor\TextDescriptor
-	 * @uses    Joomla\Console\Helper\DescriptorHelper
-	 */
-	public function testTheCommandIsExecutedWithACommandClass()
-	{
-		$input  = new ArrayInput(
-			[
-				'command' => 'help',
-			]
-		);
-		$output = new BufferedOutput;
+    /**
+     * @covers  Joomla\Console\Command\HelpCommand
+     * @uses    Joomla\Console\Application
+     * @uses    Joomla\Console\Command\AbstractCommand
+     * @uses    Joomla\Console\Command\ListCommand
+     * @uses    Joomla\Console\Descriptor\TextDescriptor
+     * @uses    Joomla\Console\Helper\DescriptorHelper
+     */
+    public function testTheCommandIsExecutedWithACommandClass()
+    {
+        $input  = new ArrayInput(
+            [
+                'command' => 'help',
+            ]
+        );
+        $output = new BufferedOutput();
 
-		$application = new Application($input, $output);
+        $application = new Application($input, $output);
 
-		$command = new HelpCommand;
-		$command->setApplication($application);
-		$command->setCommand(new ListCommand);
+        $command = new HelpCommand();
+        $command->setApplication($application);
+        $command->setCommand(new ListCommand());
 
-		$this->assertSame(0, $command->execute($input, $output));
+        $this->assertSame(0, $command->execute($input, $output));
 
-		$screenOutput = $output->fetch();
-		$this->assertStringContainsString('list [<namespace>]', $screenOutput);
-	}
+        $screenOutput = $output->fetch();
+        $this->assertStringContainsString('list [<namespace>]', $screenOutput);
+    }
 }

@@ -20,60 +20,60 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ListCommand extends AbstractCommand
 {
-	/**
-	 * The default command name
-	 *
-	 * @var    string
-	 * @since  2.0.0
-	 */
-	protected static $defaultName = 'list';
+    /**
+     * The default command name
+     *
+     * @var    string
+     * @since  2.0.0
+     */
+    protected static $defaultName = 'list';
 
-	/**
-	 * Configure the command.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	protected function configure(): void
-	{
-		$this->setDescription("List the application's available commands");
-		$this->addArgument('namespace', InputArgument::OPTIONAL, 'The namespace name');
-		$this->setHelp(<<<'EOF'
+    /**
+     * Configure the command.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    protected function configure(): void
+    {
+        $this->setDescription("List the application's available commands");
+        $this->addArgument('namespace', InputArgument::OPTIONAL, 'The namespace name');
+        $this->setHelp(
+            <<<'EOF'
 The <info>%command.name%</info> command lists all of the application's commands:
 
   <info>php %command.full_name%</info>
 EOF
-		);
-	}
+        );
+    }
 
-	/**
-	 * Internal function to execute the command.
-	 *
-	 * @param   InputInterface   $input   The input to inject into the command.
-	 * @param   OutputInterface  $output  The output to inject into the command.
-	 *
-	 * @return  integer  The command exit code
-	 *
-	 * @since   2.0.0
-	 */
-	protected function doExecute(InputInterface $input, OutputInterface $output): int
-	{
-		$descriptor = new DescriptorHelper;
+    /**
+     * Internal function to execute the command.
+     *
+     * @param   InputInterface   $input   The input to inject into the command.
+     * @param   OutputInterface  $output  The output to inject into the command.
+     *
+     * @return  integer  The command exit code
+     *
+     * @since   2.0.0
+     */
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        $descriptor = new DescriptorHelper();
 
-		if ($this->getHelperSet() !== null)
-		{
-			$this->getHelperSet()->set($descriptor);
-		}
+        if ($this->getHelperSet() !== null) {
+            $this->getHelperSet()->set($descriptor);
+        }
 
-		$descriptor->describe(
-			$output,
-			$this->getApplication(),
-			[
-				'namespace' => $input->getArgument('namespace'),
-			]
-		);
+        $descriptor->describe(
+            $output,
+            $this->getApplication(),
+            [
+                'namespace' => $input->getArgument('namespace'),
+            ]
+        );
 
-		return 0;
-	}
+        return 0;
+    }
 }

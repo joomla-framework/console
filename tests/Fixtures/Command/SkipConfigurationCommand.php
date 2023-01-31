@@ -15,30 +15,30 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class SkipConfigurationCommand extends AbstractCommand
 {
-	/**
-	 * The default command name
-	 *
-	 * @var  string
-	 */
-	protected static $defaultName = 'test:skip-configure';
+    /**
+     * The default command name
+     *
+     * @var  string
+     */
+    protected static $defaultName = 'test:skip-configure';
 
-	/**
-	 * Command constructor.
-	 */
-	public function __construct()
-	{
-	}
+    /**
+     * Command constructor.
+     */
+    public function __construct()
+    {
+    }
 
-	/**
-	 * Internal function to execute the command.
-	 *
-	 * @param   InputInterface   $input   The input to inject into the command.
-	 * @param   OutputInterface  $output  The output to inject into the command.
-	 *
-	 * @return  integer  The command exit code
-	 */
-	protected function doExecute(InputInterface $input, OutputInterface $output): int
-	{
-		return 0;
-	}
+    /**
+     * Internal function to execute the command.
+     *
+     * @param   InputInterface   $input   The input to inject into the command.
+     * @param   OutputInterface  $output  The output to inject into the command.
+     *
+     * @return  integer  The command exit code
+     */
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        return 0;
+    }
 }

@@ -19,73 +19,72 @@ use Joomla\Console\ConsoleEvents;
  */
 class BeforeCommandExecuteEvent extends ConsoleEvent
 {
-	/**
-	 * The return code for a command disabled by this event.
-	 *
-	 * @var    integer
-	 * @since  2.0.0
-	 */
-	public const RETURN_CODE_DISABLED = 113;
+    /**
+     * The return code for a command disabled by this event.
+     *
+     * @var    integer
+     * @since  2.0.0
+     */
+    public const RETURN_CODE_DISABLED = 113;
 
-	/**
-	 * Flag indicating the command is enabled
-	 *
-	 * @var    boolean
-	 * @since  2.0.0
-	 */
-	private $commandEnabled = true;
+    /**
+     * Flag indicating the command is enabled
+     *
+     * @var    boolean
+     * @since  2.0.0
+     */
+    private $commandEnabled = true;
 
-	/**
-	 * Event constructor.
-	 *
-	 * @param   Application           $application  The active application.
-	 * @param   AbstractCommand|null  $command      The command being executed.
-	 *
-	 * @since   2.0.0
-	 */
-	public function __construct(Application $application, ?AbstractCommand $command = null)
-	{
-		parent::__construct(ConsoleEvents::BEFORE_COMMAND_EXECUTE, $application, $command);
+    /**
+     * Event constructor.
+     *
+     * @param   Application           $application  The active application.
+     * @param   AbstractCommand|null  $command      The command being executed.
+     *
+     * @since   2.0.0
+     */
+    public function __construct(Application $application, ?AbstractCommand $command = null)
+    {
+        parent::__construct(ConsoleEvents::BEFORE_COMMAND_EXECUTE, $application, $command);
 
-		if ($command)
-		{
-			$this->commandEnabled = $command->isEnabled();
-		}
-	}
+        if ($command) {
+            $this->commandEnabled = $command->isEnabled();
+        }
+    }
 
-	/**
-	 * Disable the command.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function disableCommand(): void
-	{
-		$this->commandEnabled = false;
-	}
+    /**
+     * Disable the command.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function disableCommand(): void
+    {
+        $this->commandEnabled = false;
+    }
 
-	/**
-	 * Enable the command.
-	 *
-	 * @return  void
-	 *
-	 * @since   2.0.0
-	 */
-	public function enableCommand(): void
-	{
-		$this->commandEnabled = false;
-	}
+    /**
+     * Enable the command.
+     *
+     * @return  void
+     *
+     * @since   2.0.0
+     */
+    public function enableCommand(): void
+    {
+        $this->commandEnabled = false;
+    }
 
-	/**
-	 * Check if the command is enabled.
-	 *
-	 * @return    boolean
-	 *
-	 * @since   2.0.0
-	 */
-	public function isCommandEnabled(): bool
-	{
-		return $this->commandEnabled;
-	}
+    /**
+     * Check if the command is enabled.
+     *
+     * @return    boolean
+     *
+     * @since   2.0.0
+     */
+    public function isCommandEnabled(): bool
+    {
+        return $this->commandEnabled;
+    }
 }

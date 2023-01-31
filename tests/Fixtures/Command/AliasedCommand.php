@@ -15,33 +15,33 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 final class AliasedCommand extends AbstractCommand
 {
-	/**
-	 * The default command name
-	 *
-	 * @var  string
-	 */
-	protected static $defaultName = 'test:aliased';
+    /**
+     * The default command name
+     *
+     * @var  string
+     */
+    protected static $defaultName = 'test:aliased';
 
-	/**
-	 * Configure the command.
-	 *
-	 * @return  void
-	 */
-	protected function configure(): void
-	{
-		$this->setAliases(['test:alias']);
-	}
+    /**
+     * Configure the command.
+     *
+     * @return  void
+     */
+    protected function configure(): void
+    {
+        $this->setAliases(['test:alias']);
+    }
 
-	/**
-	 * Internal function to execute the command.
-	 *
-	 * @param   InputInterface   $input   The input to inject into the command.
-	 * @param   OutputInterface  $output  The output to inject into the command.
-	 *
-	 * @return  integer  The command exit code
-	 */
-	protected function doExecute(InputInterface $input, OutputInterface $output): int
-	{
-		return 0;
-	}
+    /**
+     * Internal function to execute the command.
+     *
+     * @param   InputInterface   $input   The input to inject into the command.
+     * @param   OutputInterface  $output  The output to inject into the command.
+     *
+     * @return  integer  The command exit code
+     */
+    protected function doExecute(InputInterface $input, OutputInterface $output): int
+    {
+        return 0;
+    }
 }

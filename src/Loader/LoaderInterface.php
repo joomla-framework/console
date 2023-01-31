@@ -18,35 +18,35 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
  */
 interface LoaderInterface
 {
-	/**
-	 * Loads a command.
-	 *
-	 * @param   string  $name  The command to load.
-	 *
-	 * @return  AbstractCommand
-	 *
-	 * @since   2.0.0
-	 * @throws  CommandNotFoundException
-	 */
-	public function get(string $name): AbstractCommand;
+    /**
+     * Loads a command.
+     *
+     * @param   string  $name  The command to load.
+     *
+     * @return  AbstractCommand
+     *
+     * @since   2.0.0
+     * @throws  CommandNotFoundException
+     */
+    public function get(string $name): AbstractCommand;
 
-	/**
-	 * Get the names of the registered commands.
-	 *
-	 * @return  string[]
-	 *
-	 * @since   2.0.0
-	 */
-	public function getNames(): array;
+    /**
+     * Get the names of the registered commands.
+     *
+     * @return  string[]
+     *
+     * @since   2.0.0
+     */
+    public function getNames(): array;
 
-	/**
-	 * Checks if a command exists.
-	 *
-	 * @param   string  $name  The command to check.
-	 *
-	 * @return  boolean
-	 *
-	 * @since   2.0.0
-	 */
-	public function has($name): bool;
+    /**
+     * Checks if a command exists.
+     *
+     * @param   string  $name  The command to check.
+     *
+     * @return  boolean
+     *
+     * @since   2.0.0
+     */
+    public function has($name): bool;
 }
