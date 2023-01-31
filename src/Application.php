@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Part of the Joomla Framework Console Package
  *
@@ -263,17 +264,20 @@ class Application extends AbstractApplication
             $this->consoleOutput->setVerbosity(OutputInterface::VERBOSITY_QUIET);
             $this->consoleInput->setInteractive(false);
         } else {
-            if ($this->consoleInput->hasParameterOption('-vvv', true)
+            if (
+                $this->consoleInput->hasParameterOption('-vvv', true)
                 || $this->consoleInput->hasParameterOption('--verbose=3', true)
                 || $this->consoleInput->getParameterOption('--verbose', false, true) === 3
             ) {
                 $this->consoleOutput->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
-            } elseif ($this->consoleInput->hasParameterOption('-vv', true)
+            } elseif (
+                $this->consoleInput->hasParameterOption('-vv', true)
                 || $this->consoleInput->hasParameterOption('--verbose=2', true)
                 || $this->consoleInput->getParameterOption('--verbose', false, true) === 2
             ) {
                 $this->consoleOutput->setVerbosity(OutputInterface::VERBOSITY_VERY_VERBOSE);
-            } elseif ($this->consoleInput->hasParameterOption('-v', true)
+            } elseif (
+                $this->consoleInput->hasParameterOption('-v', true)
                 || $this->consoleInput->hasParameterOption('--verbose=1', true)
                 || $this->consoleInput->hasParameterOption('--verbose', true)
                 || $this->consoleInput->getParameterOption('--verbose', false, true)

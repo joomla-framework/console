@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright  Copyright (C) 2005 - 2021 Open Source Matters, Inc. All rights reserved.
  * @license    GNU General Public License version 2 or later; see LICENSE
@@ -688,7 +689,8 @@ class ApplicationTest extends TestCase
             public function get($id)
             {
                 if (!$this->has($id)) {
-                    throw new class () extends \InvalidArgumentException implements NotFoundExceptionInterface {};
+                    throw new class () extends \InvalidArgumentException implements NotFoundExceptionInterface {
+                    };
                 }
 
                 return $this->services[$id]($this);
