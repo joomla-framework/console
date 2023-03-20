@@ -173,15 +173,15 @@ class Application extends AbstractApplication
     /**
      * Class constructor.
      *
-     * @param   InputInterface   $input   An optional argument to provide dependency injection for the application's input object.  If the argument is
-     *                                    an InputInterface object that object will become the application's input object, otherwise a default input
-     *                                    object is created.
-     * @param   OutputInterface  $output  An optional argument to provide dependency injection for the application's output object.  If the argument
-     *                                    is an OutputInterface object that object will become the application's output object, otherwise a default
-     *                                    output object is created.
-     * @param   Registry         $config  An optional argument to provide dependency injection for the application's config object.  If the argument
-     *                                    is a Registry object that object will become the application's config object, otherwise a default config
-     *                                    object is created.
+     * @param   ?InputInterface   $input   An optional argument to provide dependency injection for the application's input object.  If the argument is
+     *                                     an InputInterface object that object will become the application's input object, otherwise a default input
+     *                                     object is created.
+     * @param   ?OutputInterface  $output  An optional argument to provide dependency injection for the application's output object.  If the argument
+     *                                     is an OutputInterface object that object will become the application's output object, otherwise a default
+     *                                     output object is created.
+     * @param   ?Registry         $config  An optional argument to provide dependency injection for the application's config object.  If the argument
+     *                                     is a Registry object that object will become the application's config object, otherwise a default config
+     *                                     object is created.
      *
      * @since   2.0.0
      */
@@ -1245,8 +1245,8 @@ class Application extends AbstractApplication
     /**
      * Returns the namespace part of the command name.
      *
-     * @param   string   $name   The command name to process
-     * @param   integer  $limit  The maximum number of parts of the namespace
+     * @param   string    $name   The command name to process
+     * @param   ?integer  $limit  The maximum number of parts of the namespace
      *
      * @return  string
      *

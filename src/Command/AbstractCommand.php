@@ -141,10 +141,10 @@ abstract class AbstractCommand
     /**
      * Adds an argument to the input definition.
      *
-     * @param   string   $name         The argument name
-     * @param   integer  $mode         The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
-     * @param   string   $description  A description text
-     * @param   mixed    $default      The default value (for InputArgument::OPTIONAL mode only)
+     * @param   string    $name         The argument name
+     * @param   ?integer  $mode         The argument mode: InputArgument::REQUIRED or InputArgument::OPTIONAL
+     * @param   string    $description  A description text
+     * @param   mixed     $default      The default value (for InputArgument::OPTIONAL mode only)
      *
      * @return  $this
      *
@@ -160,11 +160,11 @@ abstract class AbstractCommand
     /**
      * Adds an option to the input definition.
      *
-     * @param   string        $name         The option name
-     * @param   string|array  $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param   integer       $mode         The option mode: One of the VALUE_* constants
-     * @param   string        $description  A description text
-     * @param   mixed         $default      The default value (must be null for InputOption::VALUE_NONE)
+     * @param   string         $name         The option name
+     * @param   string|array   $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param   ?integer       $mode         The option mode: One of the VALUE_* constants
+     * @param   string         $description  A description text
+     * @param   ?mixed         $default      The default value (must be null for InputOption::VALUE_NONE)
      *
      * @return  $this
      *
@@ -471,7 +471,7 @@ abstract class AbstractCommand
     /**
      * Set the command's application.
      *
-     * @param   Application  $application  The command's application
+     * @param   ?Application  $application  The command's application
      *
      * @return  void
      *
