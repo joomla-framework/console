@@ -34,7 +34,7 @@ final class TextDescriptor extends SymfonyTextDescriptor
      *
      * @since   2.0.0
      */
-    public function describe(OutputInterface $output, $object, array $options = []): void
+    public function describe(OutputInterface $output, object $object, array $options = []): void
     {
         $this->output = $output;
 
