@@ -1,4 +1,4 @@
-# The Console Package [![Build Status](https://ci.joomla.org/api/badges/joomla-framework/console/status.svg?ref=refs/heads/3.x-dev)](https://ci.joomla.org/joomla-framework/console)
+# The Console Package [![Build Status](https://github.com/joomla-framework/console/actions/workflows/ci.yml/badge.svg?branch=3.x-dev)](https://github.com/joomla-framework/console)
 
 [![Latest Stable Version](https://poser.pugx.org/joomla/console/v/stable)](https://packagist.org/packages/joomla/console)
 [![Total Downloads](https://poser.pugx.org/joomla/console/downloads)](https://packagist.org/packages/joomla/console)
