@@ -153,7 +153,7 @@ class ApplicationTest extends TestCase
      *
      * @return  \Generator
      */
-    public function dataGetLongVersion(): \Generator
+    public static function dataGetLongVersion(): \Generator
     {
         // Args: App Name, App Version, Expected Return
         yield 'Empty name and version' => ['', '', 'Joomla Console Application'];
