@@ -426,13 +426,7 @@ class Application extends AbstractApplication
 
             $exitCode = $event->getExitCode();
 
-            if (is_numeric($exitCode)) {
-                $exitCode = (int) $exitCode;
-
-                if ($exitCode === 0) {
-                    $exitCode = 1;
-                }
-            } else {
+            if ($exitCode === 0) {
                 $exitCode = 1;
             }
         } finally {
@@ -893,6 +887,7 @@ class Application extends AbstractApplication
                 $title = sprintf('  [%s%s]  ', $class, ($code = $throwable->getCode()) !== 0 ? ' (' . $code . ')' : '');
                 $len   = StringHelper::strlen($title);
             } else {
+                $title = '';
                 $len = 0;
             }
 
