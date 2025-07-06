@@ -6,20 +6,20 @@
     "homepage": "https://github.com/joomla-framework/console",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": "^8.1.0",
-        "joomla/application": "^3.0",
-        "joomla/event": "^3.0",
-        "joomla/string": "^3.0",
-        "symfony/console": "^v6.2.0",
-        "symfony/error-handler": "^6"
+        "php": "^8.3.0",
+        "joomla/application": "dev-4.x-dev",
+        "joomla/event": "dev-4.x-dev",
+        "joomla/string": "dev-4.x-dev",
+        "symfony/console": "^v7.0.0",
+        "symfony/error-handler": "^7"
     },
     "require-dev": {
-        "joomla/test": "^3.0",
-        "phpunit/phpunit": "^9.5.28",
-        "psr/container": "^1.0",
-        "squizlabs/php_codesniffer": "~3.7.2",
-        "phpstan/phpstan": "1.12.27",
-        "phpstan/phpstan-deprecation-rules": "1.2.1"
+        "joomla/test": "dev-4.x-dev",
+        "phpunit/phpunit": "^12.0",
+        "psr/container": "^2.0",
+        "squizlabs/php_codesniffer": "~3.10.2",
+        "phpstan/phpstan": "2.1.17",
+        "phpstan/phpstan-deprecation-rules": "2.0.3"
     },
     "suggest": {
         "psr/container-implementation": "To use the ContainerLoader"
@@ -38,7 +38,8 @@
     "extra": {
         "branch-alias": {
             "dev-2.0-dev": "2.0-dev",
-            "dev-3.x-dev": "3.0-dev"
+            "dev-3.x-dev": "3.0-dev",
+            "dev-4.x-dev": "4.0-dev"
         }
     }
 }

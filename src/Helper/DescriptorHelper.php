@@ -43,7 +43,7 @@ class DescriptorHelper extends Helper
      *
      * @since   2.0.0
      */
-    public function getName()
+    public function getName(): string
     {
         return 'descriptor';
     }
