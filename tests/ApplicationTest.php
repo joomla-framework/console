@@ -26,6 +26,7 @@ use Joomla\Console\Tests\Fixtures\Command\TopNamespacedCommand;
 use Joomla\Event\Dispatcher;
 use Joomla\Test\TestHelper;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
@@ -151,15 +152,17 @@ class ApplicationTest extends TestCase
     /**
      * Data provider for testGetLongVersion
      *
-     * @return  \Generator
+     * @return  array
      */
-    public function dataGetLongVersion(): \Generator
+    public static function dataGetLongVersionProvider(): array
     {
         // Args: App Name, App Version, Expected Return
-        yield 'Empty name and version' => ['', '', 'Joomla Console Application'];
-        yield 'Name without version' => ['Console Application', '', 'Console Application'];
-        yield 'Version without name' => ['', '1.0.0', 'Joomla Console Application <info>1.0.0</info>'];
-        yield 'Version with name' => ['Console Application', '1.0.0', 'Console Application <info>1.0.0</info>'];
+        return [
+            'Empty name and version' => ['', '', 'Joomla Console Application'],
+            'Name without version' => ['Console Application', '', 'Console Application'],
+            'Version without name' => ['', '1.0.0', 'Joomla Console Application <info>1.0.0</info>'],
+            'Version with name' => ['Console Application', '1.0.0', 'Console Application <info>1.0.0</info>'],
+        ];
     }
 
     /**
@@ -171,6 +174,7 @@ class ApplicationTest extends TestCase
      *
      * @dataProvider  dataGetLongVersion
      */
+    #[DataProvider('dataGetLongVersionProvider')]
     public function testGetLongVersion(string $name, string $version, string $expected)
     {
         $this->object->setName($name);
@@ -696,7 +700,7 @@ class ApplicationTest extends TestCase
                 return $this->services[$id]($this);
             }
 
-            public function has($id)
+            public function has(string $id): bool
             {
                 return isset($this->services[$id]);
             }
