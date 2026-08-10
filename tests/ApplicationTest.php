@@ -12,10 +12,15 @@ use Joomla\Console\Command\AbstractCommand;
 use Joomla\Console\Command\HelpCommand;
 use Joomla\Console\Command\ListCommand;
 use Joomla\Console\ConsoleEvents;
+use Joomla\Console\Descriptor\ApplicationDescription;
+use Joomla\Console\Descriptor\TextDescriptor;
 use Joomla\Console\Event\ApplicationErrorEvent;
 use Joomla\Console\Event\BeforeCommandExecuteEvent;
 use Joomla\Console\Event\CommandErrorEvent;
+use Joomla\Console\Event\ConsoleEvent;
+use Joomla\Console\Event\TerminateEvent;
 use Joomla\Console\Exception\NamespaceNotFoundException;
+use Joomla\Console\Helper\DescriptorHelper;
 use Joomla\Console\Loader\ContainerLoader;
 use Joomla\Console\Tests\Fixtures\Command\AliasedCommand;
 use Joomla\Console\Tests\Fixtures\Command\AnonymousCommand;
@@ -25,7 +30,9 @@ use Joomla\Console\Tests\Fixtures\Command\SkipConfigurationCommand;
 use Joomla\Console\Tests\Fixtures\Command\TopNamespacedCommand;
 use Joomla\Event\Dispatcher;
 use Joomla\Test\TestHelper;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -40,6 +47,19 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Test class for \Joomla\Console\Application
  */
+#[CoversClass(Application::class)]
+#[UsesClass(AbstractCommand::class)]
+#[UsesClass(HelpCommand::class)]
+#[UsesClass(ListCommand::class)]
+#[UsesClass(ApplicationDescription::class)]
+#[UsesClass(TextDescriptor::class)]
+#[UsesClass(ApplicationErrorEvent::class)]
+#[UsesClass(BeforeCommandExecuteEvent::class)]
+#[UsesClass(CommandErrorEvent::class)]
+#[UsesClass(ConsoleEvent::class)]
+#[UsesClass(TerminateEvent::class)]
+#[UsesClass(DescriptorHelper::class)]
+#[UsesClass(ContainerLoader::class)]
 class ApplicationTest extends TestCase
 {
     /**
@@ -58,15 +78,6 @@ class ApplicationTest extends TestCase
         $this->object = new Application();
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Descriptor\ApplicationDescription
-     * @uses    Joomla\Console\Descriptor\TextDescriptor
-     * @uses    Joomla\Console\Helper\DescriptorHelper
-     */
     public function testTheApplicationIsExecutedWithTheDefaultCommand()
     {
         $input  = new ArrayInput([]);
@@ -79,15 +90,6 @@ class ApplicationTest extends TestCase
         $this->assertNotEmpty($output->fetch());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Descriptor\ApplicationDescription
-     * @uses    Joomla\Console\Descriptor\TextDescriptor
-     * @uses    Joomla\Console\Helper\DescriptorHelper
-     */
     public function testTheApplicationIsExecutedWithTheRequestedCommand()
     {
         $input = new ArrayInput(
@@ -104,15 +106,6 @@ class ApplicationTest extends TestCase
         $this->assertNotEmpty($output->fetch());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Descriptor\ApplicationDescription
-     * @uses    Joomla\Console\Descriptor\TextDescriptor
-     * @uses    Joomla\Console\Helper\DescriptorHelper
-     */
     public function testTheApplicationPrintsTheVersionInformation()
     {
         $input = new ArrayInput(
@@ -131,18 +124,12 @@ class ApplicationTest extends TestCase
         $this->assertSame('Console Tester 1.0.0', trim($output->fetch()));
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     */
     public function testSetGetName()
     {
         $this->object->setName('Console Application');
         $this->assertSame('Console Application', $this->object->getName());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     */
     public function testSetGetVersion()
     {
         $this->object->setVersion('1.0.0');
@@ -169,10 +156,6 @@ class ApplicationTest extends TestCase
      * @param   string  $name      Application name
      * @param   string  $version   Application version
      * @param   string  $expected  Expected return
-     *
-     * @covers  Joomla\Console\Application
-     *
-     * @dataProvider  dataGetLongVersion
      */
     #[DataProvider('dataGetLongVersionProvider')]
     public function testGetLongVersion(string $name, string $version, string $expected)
@@ -182,12 +165,6 @@ class ApplicationTest extends TestCase
         $this->assertSame($expected, $this->object->getLongVersion());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testGetAllCommands()
     {
         $commands = $this->object->getAllCommands();
@@ -199,13 +176,6 @@ class ApplicationTest extends TestCase
         $this->assertCount(1, $commands);
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Loader\ContainerLoader
-     */
     public function testGetAllCommandsWithCommandLoader()
     {
         $commands = $this->object->getAllCommands();
@@ -231,12 +201,6 @@ class ApplicationTest extends TestCase
         $this->assertCount(2, $commands);
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testAddHasCommand()
     {
         $this->object->addCommand(new NamespacedCommand());
@@ -246,12 +210,6 @@ class ApplicationTest extends TestCase
         $this->assertFalse($this->object->hasCommand('test:disabled'));
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testAddCommandWithBrokenConstructor()
     {
         $this->expectException(LogicException::class);
@@ -260,12 +218,6 @@ class ApplicationTest extends TestCase
         $this->object->addCommand(new SkipConfigurationCommand());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testAddCommandWithNoName()
     {
         $this->expectException(LogicException::class);
@@ -274,12 +226,6 @@ class ApplicationTest extends TestCase
         $this->object->addCommand(new AnonymousCommand());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testHasGetCommand()
     {
         $this->assertTrue($this->object->hasCommand('list'));
@@ -306,13 +252,6 @@ class ApplicationTest extends TestCase
         );
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Loader\ContainerLoader
-     */
     public function testHasGetCommandWithCommandLoader()
     {
         $this->assertTrue($this->object->hasCommand('list'));
@@ -333,12 +272,6 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(NamespacedCommand::class, $this->object->getCommand('test:namespaced'));
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testGetCommandForUnknownCommand()
     {
         $this->expectException(CommandNotFoundException::class);
@@ -347,12 +280,6 @@ class ApplicationTest extends TestCase
         $this->object->getCommand('test');
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testGetNamespaces()
     {
         $this->object->addCommand(new NamespacedCommand());
@@ -361,12 +288,6 @@ class ApplicationTest extends TestCase
         $this->assertEquals(['test'], $this->object->getNamespaces());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testFindNamespace()
     {
         $this->object->addCommand(new NamespacedCommand());
@@ -381,12 +302,6 @@ class ApplicationTest extends TestCase
         $this->assertEquals('test', $this->object->findNamespace('test'));
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testFindAmbiguousNamespace()
     {
         $this->expectException(NamespaceNotFoundException::class);
@@ -398,12 +313,6 @@ class ApplicationTest extends TestCase
         $this->object->findNamespace('t');
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     */
     public function testFindUnknownNamespace()
     {
         $this->expectException(NamespaceNotFoundException::class);
@@ -412,14 +321,6 @@ class ApplicationTest extends TestCase
         $this->object->findNamespace('test');
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Descriptor\TextDescriptor
-     * @uses    Joomla\Console\Helper\DescriptorHelper
-     */
     public function testNoOutputWhenHelpRequestedWithQuietFlag()
     {
         $input = new ArrayInput(
@@ -437,15 +338,6 @@ class ApplicationTest extends TestCase
         $this->assertEmpty($output->fetch());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Event\ApplicationErrorEvent
-     * @uses    Joomla\Console\Event\CommandErrorEvent
-     * @uses    Joomla\Console\Event\ConsoleEvent
-     */
     public function testHandlingThrowables()
     {
         $input = new ArrayInput(
@@ -475,15 +367,6 @@ class ApplicationTest extends TestCase
         }
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Descriptor\ApplicationDescription
-     * @uses    Joomla\Console\Descriptor\TextDescriptor
-     * @uses    Joomla\Console\Helper\DescriptorHelper
-     */
     public function testAppIsClosedWhenAutoExitIsEnabled()
     {
         $input = new ArrayInput(
@@ -501,15 +384,6 @@ class ApplicationTest extends TestCase
         $this->assertTrue($app->wasClosed());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Event\ApplicationErrorEvent
-     * @uses    Joomla\Console\Event\CommandErrorEvent
-     * @uses    Joomla\Console\Event\ConsoleEvent
-     */
     public function testExitCodeIsSetByEventListener()
     {
         $dispatcher = new Dispatcher();
@@ -536,14 +410,6 @@ class ApplicationTest extends TestCase
         $this->assertSame(119, $app->getExitCode());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Event\CommandErrorEvent
-     * @uses    Joomla\Console\Event\ConsoleEvent
-     */
     public function testCommandNotFoundHasSuccessExitIfEventListenerSpecifiesSo()
     {
         $dispatcher = new Dispatcher();
@@ -570,14 +436,6 @@ class ApplicationTest extends TestCase
         $this->assertSame(0, $app->getExitCode());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Event\ApplicationErrorEvent
-     * @uses    Joomla\Console\Event\ConsoleEvent
-     */
     public function testCommandErrorHasExitCodeOneIfExceptionHasCodeZero()
     {
         $command = new class () extends AbstractCommand {
@@ -605,15 +463,6 @@ class ApplicationTest extends TestCase
         $this->assertSame(1, $app->getExitCode());
     }
 
-    /**
-     * @covers  Joomla\Console\Application
-     * @uses    Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Command\HelpCommand
-     * @uses    Joomla\Console\Command\ListCommand
-     * @uses    Joomla\Console\Event\BeforeCommandExecuteEvent
-     * @uses    Joomla\Console\Event\ConsoleEvent
-     * @uses    Joomla\Console\Event\TerminateEvent
-     */
     public function testCommandIsNotExecutedIfEventSkipsCommand()
     {
         $command = new class () extends AbstractCommand {

@@ -7,8 +7,11 @@
 
 namespace Joomla\Console\Tests\Loader;
 
+use Joomla\Console\Command\AbstractCommand;
 use Joomla\Console\Loader\ContainerLoader;
 use Joomla\Console\Tests\Fixtures\Command\NamespacedCommand;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -17,6 +20,8 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
 /**
  * Test class for \Joomla\Console\Loader\ContainerLoader
  */
+#[CoversClass(ContainerLoader::class)]
+#[UsesClass(AbstractCommand::class)]
 class ContainerLoaderTest extends TestCase
 {
     /**
@@ -35,10 +40,6 @@ class ContainerLoaderTest extends TestCase
         $this->container = $this->createMock(ContainerInterface::class);
     }
 
-    /**
-     * @covers  Joomla\Console\Loader\ContainerLoader
-     * @uses    Joomla\Console\Command\AbstractCommand
-     */
     public function testTheLoaderRetrievesACommand()
     {
         $command = new NamespacedCommand();
@@ -62,9 +63,6 @@ class ContainerLoaderTest extends TestCase
         );
     }
 
-    /**
-     * @covers  Joomla\Console\Loader\ContainerLoader
-     */
     public function testTheLoaderDoesNotRetrieveAnUnknownCommand()
     {
         $this->expectException(CommandNotFoundException::class);
@@ -83,9 +81,6 @@ class ContainerLoaderTest extends TestCase
         (new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName);
     }
 
-    /**
-     * @covers  Joomla\Console\Loader\ContainerLoader
-     */
     public function testTheLoaderHasACommand()
     {
         $commandName = 'test:loader';
