@@ -51,11 +51,7 @@ class ListCommandTest extends TestCase
 
         $screenOutput = $output->fetch();
 
-        if (method_exists($this, 'assertMatchesRegularExpression')) {
-            $this->assertMatchesRegularExpression('/help\s{2,}Show the help for a command/', $screenOutput);
-        } else {
-            $this->assertRegExp('/help\s{2,}Show the help for a command/', $screenOutput);
-        }
+        $this->assertMatchesRegularExpression('/help\s{2,}Show the help for a command/', $screenOutput);
     }
 
     public function testTheCommandIsExecutedForANamespace()
@@ -81,10 +77,6 @@ class ListCommandTest extends TestCase
 
         $screenOutput = $output->fetch();
 
-        if (method_exists($this, 'assertMatchesRegularExpression')) {
-            $this->assertMatchesRegularExpression('/test:namespaced\s{2,}A testing command/', $screenOutput);
-        } else {
-            $this->assertRegExp('/test:namespaced\s{2,}A testing command/', $screenOutput);
-        }
+        $this->assertMatchesRegularExpression('/test:namespaced\s{2,}A testing command/', $screenOutput);
     }
 }
