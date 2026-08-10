@@ -237,10 +237,7 @@ class ApplicationTest extends TestCase
         $this->assertSame($command, $this->object->getCommand('test:namespaced'));
 
         // Simulates passing the --help option
-        $r = new \ReflectionObject($this->object);
-        $p = $r->getProperty('wantsHelp');
-        $p->setAccessible(true);
-        $p->setValue($this->object, true);
+        TestHelper::setValue($this->object, 'wantsHelp', true);
 
         /** @var HelpCommand $helpCommand */
         $helpCommand = $this->object->getCommand('test:namespaced');
