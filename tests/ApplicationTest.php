@@ -282,21 +282,21 @@ class ApplicationTest extends TestCase
         $this->object->addCommand(new NamespacedCommand());
         $this->object->addCommand(new AliasedCommand());
 
-        $this->assertEquals(['test'], $this->object->getNamespaces());
+        $this->assertSame(['test'], $this->object->getNamespaces());
     }
 
     public function testFindNamespace()
     {
         $this->object->addCommand(new NamespacedCommand());
-        $this->assertEquals('test', $this->object->findNamespace('test'));
-        $this->assertEquals(
+        $this->assertSame('test', $this->object->findNamespace('test'));
+        $this->assertSame(
             'test',
             $this->object->findNamespace('t'),
             'If an abbreviated namespace is given and is not ambiguous, the full namespace is returned'
         );
 
         $this->object->addCommand(new AliasedCommand());
-        $this->assertEquals('test', $this->object->findNamespace('test'));
+        $this->assertSame('test', $this->object->findNamespace('test'));
     }
 
     public function testFindAmbiguousNamespace()
@@ -360,7 +360,7 @@ class ApplicationTest extends TestCase
             $this->fail('The Throwable from the application should have been caught');
         } catch (\Throwable $exception) {
             $this->assertInstanceOf(CommandNotFoundException::class, $exception);
-            $this->assertEquals('The command "foo" does not exist.', $exception->getMessage());
+            $this->assertSame('The command "foo" does not exist.', $exception->getMessage());
         }
     }
 

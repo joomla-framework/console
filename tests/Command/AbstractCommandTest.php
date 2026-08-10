@@ -133,7 +133,7 @@ class AbstractCommandTest extends TestCase
         $command->addOption('foo');
         $command->addArgument('bar');
 
-        $this->assertEquals('test:command [--foo] [--] [<bar>]', $command->getSynopsis());
+        $this->assertSame('test:command [--foo] [--] [<bar>]', $command->getSynopsis());
     }
 
     public function testTheApplicationInputDefinitionIsMergedWithTheCommand()
@@ -165,7 +165,7 @@ class AbstractCommandTest extends TestCase
 
         $command->mergeApplicationDefinition();
 
-        $this->assertEquals(
+        $this->assertSame(
             3,
             $command->getDefinition()->getArgumentCount(),
             'mergeApplicationDefinition() does not try to merge the application arguments and options multiple times'
