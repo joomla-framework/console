@@ -34,8 +34,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $this->assertSame(0, $command->execute($input, $output));
     }
@@ -49,8 +49,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -145,8 +145,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -181,8 +181,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -213,8 +213,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
