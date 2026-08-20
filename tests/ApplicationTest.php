@@ -293,7 +293,6 @@ class ApplicationTest extends TestCase
         // Simulates passing the --help option
         $r = new \ReflectionObject($this->object);
         $p = $r->getProperty('wantsHelp');
-        $p->setAccessible(true);
         $p->setValue($this->object, true);
 
         /** @var HelpCommand $helpCommand */
