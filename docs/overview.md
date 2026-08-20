@@ -109,3 +109,57 @@ there are several console specific events:
 - `ConsoleEvents::APPLICATION_ERROR` is triggered when the application catches any `Throwable` object that is not caught elsewhere in the application, this can be used to integrate extra error handling/reporting tools
 - `ConsoleEvents::COMMAND_ERROR` is triggered when the application catches any `Throwable` object directly from a command, this can be used to integrate extra error handling/reporting tools
 - `ConsoleEvents::TERMINATE` is triggered immediately before the process is completed, developers may listen for this event to perform any actions required at the end of the process
+
+## Things to know before you build on this
+
+**Use `$defaultName`, not `#[AsCommand]`.** Symfony removed the static property in 7.0, but
+`AbstractCommand` reads it through its own reflection and does not read the attribute. A command
+annotated with `#[AsCommand]` therefore has no name here.
+
+`getDefaultName()` also checks that the property is declared on the class being asked, so a
+subclass does not inherit the name of its parent — give every concrete command its own.
+
+**There is no signal handling.** A `SIGTERM` during a long-running command — a deployment, a
+supervisor restart — kills the process wherever it happens to be. Add it yourself for anything that
+runs longer than a moment:
+
+```php
+protected function doExecute(InputInterface $input, OutputInterface $output): int
+{
+    $running = true;
+
+    if (\function_exists('pcntl_signal')) {
+        pcntl_async_signals(true);
+        pcntl_signal(SIGTERM, static function () use (&$running) { $running = false; });
+        pcntl_signal(SIGINT, static function () use (&$running) { $running = false; });
+    }
+
+    while ($running) {
+        // one unit of work, then re-check
+    }
+
+    return 0;
+}
+```
+
+**There is no execution lock.** Nothing prevents two instances of the same command running at once,
+which matters for cron-driven commands that take longer than their interval:
+
+```php
+$lock = fopen(sys_get_temp_dir() . '/my-command.lock', 'c');
+
+if (!flock($lock, LOCK_EX | LOCK_NB)) {
+    $output->writeln('Another instance is running.');
+
+    return 0;
+}
+```
+
+**`ContainerLoader` cannot distinguish "unknown command" from "unregistered service".** Its
+`has()` requires both a map entry and a container entry, so a command listed in the map whose
+service was never registered reports "Command … does not exist." Check the container registration
+when a command you added does not appear.
+
+**`Application` is a reimplementation, not a subclass.** It reproduces Symfony's `Application`
+rather than extending it, so fixes Symfony makes to command resolution, error rendering or the
+handler juggling do not arrive automatically.
