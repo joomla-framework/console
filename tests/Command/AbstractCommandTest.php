@@ -9,6 +9,8 @@ namespace Joomla\Console\Tests\Command;
 
 use Joomla\Console\Application;
 use Joomla\Console\Command\AbstractCommand;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -19,11 +21,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Test class for \Joomla\Console\Command\AbstractCommand
  */
+#[CoversClass(AbstractCommand::class)]
+#[UsesClass(Application::class)]
 class AbstractCommandTest extends TestCase
 {
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testTheCommandIsExecutedWithoutAnApplication()
     {
         $command = new class () extends AbstractCommand {
@@ -33,16 +34,12 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $this->assertSame(0, $command->execute($input, $output));
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Application
-     */
     public function testTheCommandIsExecutedWithAnApplication()
     {
         $command = new class () extends AbstractCommand {
@@ -52,8 +49,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -62,9 +59,6 @@ class AbstractCommandTest extends TestCase
         $this->assertSame(0, $command->execute($input, $output));
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testArgumentsAreAddedToTheDefinition()
     {
         $command = new class () extends AbstractCommand {
@@ -78,9 +72,6 @@ class AbstractCommandTest extends TestCase
         $this->assertTrue($command->getDefinition()->hasArgument('test'));
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testOptionsAreAddedToTheDefinition()
     {
         $command = new class () extends AbstractCommand {
@@ -94,9 +85,6 @@ class AbstractCommandTest extends TestCase
         $this->assertTrue($command->getDefinition()->hasOption('test'));
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testTheDefaultCommandNameIsRetrieved()
     {
         $command = new class () extends AbstractCommand {
@@ -111,9 +99,6 @@ class AbstractCommandTest extends TestCase
         $this->assertSame('test:command', $command::getDefaultName());
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testTheCommandHelpIsProcessed()
     {
         $command = new class () extends AbstractCommand {
@@ -134,9 +119,6 @@ class AbstractCommandTest extends TestCase
         $this->assertStringNotContainsString('%command.full_name%', $command->getProcessedHelp(), 'getProcessedHelp() replaces %command.full_name%');
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     */
     public function testTheCommandSynopsisIsProcessed()
     {
         $command = new class () extends AbstractCommand {
@@ -151,13 +133,9 @@ class AbstractCommandTest extends TestCase
         $command->addOption('foo');
         $command->addArgument('bar');
 
-        $this->assertEquals('test:command [--foo] [--] [<bar>]', $command->getSynopsis());
+        $this->assertSame('test:command [--foo] [--] [<bar>]', $command->getSynopsis());
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Application
-     */
     public function testTheApplicationInputDefinitionIsMergedWithTheCommand()
     {
         $command = new class () extends AbstractCommand {
@@ -167,8 +145,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -187,17 +165,13 @@ class AbstractCommandTest extends TestCase
 
         $command->mergeApplicationDefinition();
 
-        $this->assertEquals(
+        $this->assertSame(
             3,
             $command->getDefinition()->getArgumentCount(),
             'mergeApplicationDefinition() does not try to merge the application arguments and options multiple times'
         );
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Application
-     */
     public function testTheArgumentsOfTheApplicationInputDefinitionAreNotMergedWithTheCommandUntilInstructed()
     {
         $command = new class () extends AbstractCommand {
@@ -207,8 +181,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
@@ -230,10 +204,6 @@ class AbstractCommandTest extends TestCase
         $this->assertTrue($command->getDefinition()->hasArgument('foo'));
     }
 
-    /**
-     * @covers  Joomla\Console\Command\AbstractCommand
-     * @uses    Joomla\Console\Application
-     */
     public function testTheApplicationHelperSetIsMergedToTheCommand()
     {
         $command = new class () extends AbstractCommand {
@@ -243,8 +213,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $input  = $this->createMock(InputInterface::class);
-        $output = $this->createMock(OutputInterface::class);
+        $input  = $this->createStub(InputInterface::class);
+        $output = $this->createStub(OutputInterface::class);
 
         $application = new Application($input, $output);
 
