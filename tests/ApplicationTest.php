@@ -507,6 +507,60 @@ class ApplicationTest extends TestCase
         $this->assertSame(BeforeCommandExecuteEvent::RETURN_CODE_DISABLED, $app->getExitCode());
     }
 
+    public function testCommandIsExecutedIfEventEnablesCommandAgain()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 're-enabled';
+
+            private $executed = false;
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                $this->executed = true;
+
+                return 0;
+            }
+
+            public function wasExecuted(): bool
+            {
+                return $this->executed;
+            }
+        };
+
+        $dispatcher = new Dispatcher();
+        $dispatcher->addListener(
+            ConsoleEvents::BEFORE_COMMAND_EXECUTE,
+            function (BeforeCommandExecuteEvent $event) {
+                $event->disableCommand();
+            },
+            2
+        );
+        $dispatcher->addListener(
+            ConsoleEvents::BEFORE_COMMAND_EXECUTE,
+            function (BeforeCommandExecuteEvent $event) {
+                $event->enableCommand();
+            },
+            1
+        );
+
+        $input = new ArrayInput(
+            [
+                'command' => 're-enabled',
+            ]
+        );
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertTrue($command->wasExecuted());
+        $this->assertSame(0, $app->getExitCode());
+    }
+
     private function buildMockClosingApplication(?InputInterface $input = null, ?OutputInterface $output = null): Application
     {
         return new class ($input, $output) extends Application {

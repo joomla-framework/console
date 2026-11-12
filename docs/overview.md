@@ -105,7 +105,7 @@ $application->execute();
 The Application has inbuilt support for four events. In addition to the Application package's `BEFORE_EXECUTE` and `AFTER_EXECUTE` events,
 there are several console specific events:
 
-- `ConsoleEvents::BEFORE_COMMAND_EXECUTE` is triggered immediately before executing a command, developers may listen for this event to optionally disable a command at runtime
+- `ConsoleEvents::BEFORE_COMMAND_EXECUTE` is triggered immediately before executing a command, developers may listen for this event to optionally disable a command at runtime by calling `disableCommand()` on the event, or to enable it again with `enableCommand()`; a command that is still disabled after all listeners have run is not executed and the application exits with `BeforeCommandExecuteEvent::RETURN_CODE_DISABLED` (113)
 - `ConsoleEvents::APPLICATION_ERROR` is triggered when the application catches any `Throwable` object that is not caught elsewhere in the application, this can be used to integrate extra error handling/reporting tools
 - `ConsoleEvents::COMMAND_ERROR` is triggered when the application catches any `Throwable` object directly from a command, this can be used to integrate extra error handling/reporting tools
 - `ConsoleEvents::TERMINATE` is triggered immediately before the process is completed, developers may listen for this event to perform any actions required at the end of the process
