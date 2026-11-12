@@ -335,6 +335,28 @@ class ApplicationTest extends TestCase
         $this->assertEmpty($output->fetch());
     }
 
+    public function testHelpRequestForUnknownCommandDoesNotLeakIntoLaterLookups()
+    {
+        $input = new ArrayInput(
+            [
+                'command' => 'foo',
+                '--help'  => true,
+            ]
+        );
+        $output = new BufferedOutput();
+
+        $app = new Application($input, $output);
+        $app->setAutoExit(false);
+        $app->execute();
+
+        $this->assertStringContainsString('The command "foo" does not exist.', $output->fetch());
+        $this->assertInstanceOf(
+            ListCommand::class,
+            $app->getCommand('list'),
+            'A failed help request must not turn the next command lookup into a help request'
+        );
+    }
+
     public function testHandlingThrowables()
     {
         $input = new ArrayInput(
