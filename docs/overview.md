@@ -25,6 +25,16 @@ $application = new Application;
 $application->execute();
 ```
 
+#### Finding commands
+
+The command name given on the command line may be abbreviated, as with Symfony's console: each part of a namespaced
+name can be shortened as long as the result is unique, so `c:c` runs `cache:clear` and `li` runs `list`. An ambiguous
+abbreviation fails with a list of the matching commands, an unknown name with the similar names it found
+("Did you mean this?"). Hidden commands are not suggested and can only be run by their full name or an alias.
+
+The same lookup is available as `Application::findCommand()`. `getCommand()` and `hasCommand()` only accept exact
+names and aliases.
+
 ### Console Commands
 
 The `AbstractCommand` defines the base API for console command classes, largely based on `Symfony\Component\Console\Command\Command`.

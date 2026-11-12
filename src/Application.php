@@ -351,7 +351,7 @@ class Application extends AbstractApplication
         try {
             $this->runningCommand = null;
 
-            $command = $this->getCommand($name);
+            $command = $this->findCommand($name);
         } catch (\Throwable $e) {
             if ($e instanceof CommandNotFoundException && !($e instanceof NamespaceNotFoundException)) {
                 (new SymfonyStyle($input, $output))->block(sprintf("\nCommand \"%s\" is not defined.\n", $name), null, 'error');
@@ -450,6 +450,108 @@ class Application extends AbstractApplication
                 $this->close($exitCode);
             }
         }
+    }
+
+    /**
+     * Finds a command by name or alias, accepting an abbreviation of the name.
+     *
+     * Each part of a namespaced name can be abbreviated as long as the result is unique, `c:c` finds `cache:clear` for example.
+     * Contrary to `getCommand()`, the exception thrown for an unknown name lists similar command names.
+     *
+     * @param   string  $name  The command name, alias or abbreviation
+     *
+     * @return  AbstractCommand
+     *
+     * @since   __DEPLOY_VERSION__
+     * @throws  CommandNotFoundException When the name is unknown or ambiguous
+     * @throws  NamespaceNotFoundException When the namespace of the name is unknown or ambiguous
+     */
+    public function findCommand(string $name): AbstractCommand
+    {
+        $this->initCommands();
+
+        if ($this->hasCommand($name)) {
+            return $this->getCommand($name);
+        }
+
+        $allCommands = array_keys($this->commands);
+
+        if ($this->commandLoader) {
+            $allCommands = array_values(array_unique(array_merge($this->commandLoader->getNames(), $allCommands)));
+        }
+
+        $expr     = implode('[^:]*:', array_map('preg_quote', explode(':', $name))) . '[^:]*';
+        $commands = preg_grep('{^' . $expr . '}', $allCommands);
+
+        if (!$commands) {
+            $commands = preg_grep('{^' . $expr . '}i', $allCommands);
+        }
+
+        // If no commands matched or only namespaces matched, the name is unknown
+        if (!$commands || \count(preg_grep('{^' . $expr . '$}i', $commands)) < 1) {
+            if (($pos = strrpos($name, ':')) !== false) {
+                // Check if the namespace exists and contains commands
+                $this->findNamespace(substr($name, 0, $pos));
+            }
+
+            $message      = sprintf('The command "%s" does not exist.', $name);
+            $alternatives = array_values(
+                array_filter(
+                    $this->findAlternatives($name, $allCommands),
+                    function (string $alternative): bool {
+                        $command = $this->loadCommand($alternative);
+
+                        return $command !== null && !$command->isHidden();
+                    }
+                )
+            );
+
+            if ($alternatives) {
+                $message .= \count($alternatives) === 1 ? "\n\nDid you mean this?\n    " : "\n\nDid you mean one of these?\n    ";
+                $message .= implode("\n    ", $alternatives);
+            }
+
+            throw new CommandNotFoundException($message, $alternatives);
+        }
+
+        // Reduce the matches to visible commands, dropping aliases of commands which are already in the list
+        $matches = [];
+
+        foreach ($commands as $nameOrAlias) {
+            $command = $this->loadCommand($nameOrAlias);
+
+            if ($command === null || $command->isHidden()) {
+                continue;
+            }
+
+            $commandName = $command->getName();
+
+            if (\in_array($commandName, $commands, true) && $commandName !== $nameOrAlias) {
+                continue;
+            }
+
+            $matches[$commandName] = $command;
+        }
+
+        if (!$matches) {
+            throw new CommandNotFoundException(sprintf('The command "%s" does not exist.', $name));
+        }
+
+        if (\count($matches) > 1) {
+            $maxLength   = max(array_map([StringHelper::class, 'strlen'], array_keys($matches)));
+            $suggestions = [];
+
+            foreach ($matches as $commandName => $command) {
+                $suggestions[] = rtrim(str_pad($commandName, $maxLength) . ' ' . $command->getDescription());
+            }
+
+            throw new CommandNotFoundException(
+                sprintf("The command \"%s\" is ambiguous.\nDid you mean one of these?\n    %s", $name, implode("\n    ", $suggestions)),
+                array_keys($matches)
+            );
+        }
+
+        return $this->getCommand(array_key_first($matches));
     }
 
     /**
@@ -1256,6 +1358,68 @@ class Application extends AbstractApplication
     }
 
     /**
+     * Finds command names which are similar to the given name.
+     *
+     * @param   string    $name        The name to find alternatives for
+     * @param   string[]  $collection  The names to search
+     *
+     * @return  string[]
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function findAlternatives(string $name, array $collection): array
+    {
+        $threshold       = 1e3;
+        $alternatives    = [];
+        $collectionParts = [];
+
+        foreach ($collection as $item) {
+            $collectionParts[$item] = explode(':', $item);
+        }
+
+        foreach (explode(':', $name) as $i => $subname) {
+            foreach ($collectionParts as $collectionName => $parts) {
+                $exists = isset($alternatives[$collectionName]);
+
+                if (!isset($parts[$i])) {
+                    if ($exists) {
+                        $alternatives[$collectionName] += $threshold;
+                    }
+
+                    continue;
+                }
+
+                $lev = levenshtein($subname, $parts[$i]);
+
+                if ($lev <= \strlen($subname) / 3 || ($subname !== '' && str_contains($parts[$i], $subname))) {
+                    $alternatives[$collectionName] = $exists ? $alternatives[$collectionName] + $lev : $lev;
+                } elseif ($exists) {
+                    $alternatives[$collectionName] += $threshold;
+                }
+            }
+        }
+
+        foreach ($collection as $item) {
+            $lev = levenshtein($name, $item);
+
+            if ($lev <= \strlen($name) / 3 || str_contains($item, $name)) {
+                $alternatives[$item] = isset($alternatives[$item]) ? $alternatives[$item] - $lev : $lev;
+            }
+        }
+
+        $alternatives = array_filter(
+            $alternatives,
+            function ($lev) use ($threshold): bool {
+                return $lev < 2 * $threshold;
+            }
+        );
+
+        ksort($alternatives, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return array_map('strval', array_keys($alternatives));
+    }
+
+    /**
      * Internal function to initialise the command store, this allows the store to be lazy loaded only when needed.
      *
      * @return  void
@@ -1273,5 +1437,23 @@ class Application extends AbstractApplication
         foreach ($this->getDefaultCommands() as $command) {
             $this->addCommand($command);
         }
+    }
+
+    /**
+     * Loads a command by its exact name or alias without processing a help request.
+     *
+     * @param   string  $name  The command name or alias
+     *
+     * @return  AbstractCommand|null  The command, or null if it is not available
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function loadCommand(string $name): ?AbstractCommand
+    {
+        if (!isset($this->commands[$name]) && $this->commandLoader && $this->commandLoader->has($name)) {
+            $this->addCommand($this->commandLoader->get($name));
+        }
+
+        return $this->commands[$name] ?? null;
     }
 }

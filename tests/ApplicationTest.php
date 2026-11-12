@@ -277,6 +277,115 @@ class ApplicationTest extends TestCase
         $this->object->getCommand('test');
     }
 
+    public function testFindCommandByExactName()
+    {
+        $command = new NamespacedCommand();
+        $this->object->addCommand($command);
+
+        $this->assertSame($command, $this->object->findCommand('test:namespaced'));
+    }
+
+    public function testFindCommandByAbbreviation()
+    {
+        $command = new NamespacedCommand();
+        $this->object->addCommand($command);
+
+        $this->assertInstanceOf(ListCommand::class, $this->object->findCommand('li'));
+        $this->assertSame($command, $this->object->findCommand('t:n'));
+        $this->assertSame($command, $this->object->findCommand('TEST:NAME'), 'The lookup falls back to a case-insensitive match');
+    }
+
+    public function testFindCommandIgnoresAliasesOfAMatchedCommand()
+    {
+        $command = new AliasedCommand();
+        $this->object->addCommand($command);
+
+        // "test:a" matches both "test:aliased" and its alias "test:alias"
+        $this->assertSame($command, $this->object->findCommand('test:a'));
+    }
+
+    public function testFindCommandWithCommandLoader()
+    {
+        $container = $this->buildStubContainer();
+        $container->set(
+            'command.namespaced',
+            function (ContainerInterface $container) {
+                return new NamespacedCommand();
+            }
+        );
+
+        $this->object->setCommandLoader(new ContainerLoader($container, ['test:namespaced' => 'command.namespaced']));
+
+        $this->assertInstanceOf(NamespacedCommand::class, $this->object->findCommand('t:name'));
+    }
+
+    public function testFindAmbiguousCommand()
+    {
+        $this->object->addCommand(new NamespacedCommand());
+        $this->object->addCommand(new AliasedCommand());
+
+        try {
+            $this->object->findCommand('test:');
+            $this->fail('An ambiguous abbreviation should throw a CommandNotFoundException');
+        } catch (CommandNotFoundException $exception) {
+            $this->assertStringStartsWith('The command "test:" is ambiguous.', $exception->getMessage());
+            $this->assertEqualsCanonicalizing(['test:aliased', 'test:namespaced'], $exception->getAlternatives());
+        }
+    }
+
+    public function testFindUnknownCommandSuggestsAlternatives()
+    {
+        try {
+            $this->object->findCommand('lisst');
+            $this->fail('An unknown command should throw a CommandNotFoundException');
+        } catch (CommandNotFoundException $exception) {
+            $this->assertSame("The command \"lisst\" does not exist.\n\nDid you mean this?\n    list", $exception->getMessage());
+            $this->assertSame(['list'], $exception->getAlternatives());
+        }
+    }
+
+    public function testFindUnknownCommandWithoutAlternatives()
+    {
+        $this->expectException(CommandNotFoundException::class);
+        $this->expectExceptionMessage('The command "foo" does not exist.');
+
+        $this->object->findCommand('foo');
+    }
+
+    public function testFindCommandInUnknownNamespace()
+    {
+        $this->expectException(NamespaceNotFoundException::class);
+        $this->expectExceptionMessage('There are no commands defined in the "foo" namespace.');
+
+        $this->object->findCommand('foo:bar');
+    }
+
+    public function testFindCommandDoesNotExpandAbbreviationsToHiddenCommands()
+    {
+        $command = new NamespacedCommand();
+        $command->setHidden(true);
+        $this->object->addCommand($command);
+
+        $this->assertSame($command, $this->object->findCommand('test:namespaced'), 'A hidden command can still be run by its full name');
+
+        $this->expectException(CommandNotFoundException::class);
+        $this->expectExceptionMessage('The command "test:n" does not exist.');
+
+        $this->object->findCommand('test:n');
+    }
+
+    public function testTheApplicationIsExecutedWithAnAbbreviatedCommand()
+    {
+        $input  = new ArrayInput(['command' => 'li']);
+        $output = new BufferedOutput();
+
+        $app = new Application($input, $output);
+        $app->setAutoExit(false);
+        $app->execute();
+
+        $this->assertStringContainsString('Available commands:', $output->fetch());
+    }
+
     public function testGetNamespaces()
     {
         $this->object->addCommand(new NamespacedCommand());
