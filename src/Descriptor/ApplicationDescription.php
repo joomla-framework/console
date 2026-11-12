@@ -136,6 +136,10 @@ final class ApplicationDescription
      */
     public function getCommand(string $name): AbstractCommand
     {
+        if ($this->commands === null) {
+            $this->inspectApplication();
+        }
+
         if (!isset($this->commands[$name]) && !isset($this->aliases[$name])) {
             throw new CommandNotFoundException(sprintf('Command %s does not exist.', $name));
         }
@@ -170,6 +174,7 @@ final class ApplicationDescription
      */
     private function inspectApplication(): void
     {
+        $this->aliases    = [];
         $this->commands   = [];
         $this->namespaces = [];
 
