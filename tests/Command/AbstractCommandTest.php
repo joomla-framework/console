@@ -9,9 +9,11 @@ namespace Joomla\Console\Tests\Command;
 
 use Joomla\Console\Application;
 use Joomla\Console\Command\AbstractCommand;
+use Joomla\Console\Tests\Fixtures\Command\AttributeCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -97,6 +99,118 @@ class AbstractCommandTest extends TestCase
         };
 
         $this->assertSame('test:command', $command::getDefaultName());
+    }
+
+    public function testTheDefaultCommandNameIsReadFromTheAsCommandAttribute()
+    {
+        $command = new #[AsCommand(name: 'test:attribute', description: 'Attribute description', aliases: ['test:attr'])]
+        class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->assertSame('test:attribute', $command::getDefaultName());
+        $this->assertSame('test:attribute', $command->getName());
+        $this->assertSame(['test:attr'], $command->getAliases());
+        $this->assertSame('Attribute description', $command->getDescription());
+        $this->assertFalse($command->isHidden());
+    }
+
+    public function testTheHelpIsReadFromTheAsCommandAttribute()
+    {
+        if (!property_exists(AsCommand::class, 'help')) {
+            $this->markTestSkipped('The help argument of #[AsCommand] requires Symfony 7.4 or later.');
+        }
+
+        $command = new #[AsCommand(name: 'test:attribute', help: 'Attribute help')]
+        class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->assertSame('Attribute help', $command->getHelp());
+    }
+
+    public function testTheAsCommandAttributeCanHideTheCommand()
+    {
+        $command = new #[AsCommand(name: 'test:hidden', aliases: ['test:secret'], hidden: true)]
+        class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->assertSame('test:hidden', $command::getDefaultName());
+        $this->assertSame('test:hidden', $command->getName());
+        $this->assertSame(['test:secret'], $command->getAliases());
+        $this->assertTrue($command->isHidden());
+    }
+
+    public function testTheDefaultNamePropertyTakesPrecedenceOverTheAsCommandAttribute()
+    {
+        $command = new #[AsCommand(name: 'test:attribute|test:attr', description: 'Attribute description')]
+        class () extends AbstractCommand {
+            protected static $defaultName = 'test:property';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->assertSame('test:property', $command::getDefaultName());
+        $this->assertSame('test:property', $command->getName());
+        $this->assertSame([], $command->getAliases());
+        $this->assertSame('Attribute description', $command->getDescription());
+    }
+
+    public function testTheConfigureMethodOverridesTheAsCommandAttribute()
+    {
+        $command = new #[AsCommand(name: 'test:attribute', description: 'Attribute description')]
+        class () extends AbstractCommand {
+            protected function configure(): void
+            {
+                $this->setDescription('Configured description');
+            }
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->assertSame('Configured description', $command->getDescription());
+    }
+
+    public function testAnExplicitNameTakesPrecedenceOverTheAsCommandAttribute()
+    {
+        $class = new #[AsCommand(name: 'test:attribute', aliases: ['test:attr'])]
+        class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $command = new $class('test:explicit');
+
+        $this->assertSame('test:explicit', $command->getName());
+        $this->assertSame([], $command->getAliases());
+    }
+
+    public function testTheAsCommandAttributeIsNotInherited()
+    {
+        $child = new class () extends AttributeCommand {
+        };
+
+        $this->assertSame('test:attribute', AttributeCommand::getDefaultName());
+        $this->assertNull($child::getDefaultName());
+        $this->assertNull($child->getName());
     }
 
     public function testTheCommandHelpIsProcessed()
