@@ -110,6 +110,18 @@ there are several console specific events:
 - `ConsoleEvents::COMMAND_ERROR` is triggered when the application catches any `Throwable` object directly from a command, this can be used to integrate extra error handling/reporting tools
 - `ConsoleEvents::TERMINATE` is triggered immediately before the process is completed, developers may listen for this event to perform any actions required at the end of the process
 
+#### Exit codes
+
+When the application exits on its own (the default, see `setAutoExit()`), it exits with the command's return value as
+modified by `TerminateEvent::setExitCode()`. A value outside the range 0 to 255 becomes 255; a negative value would
+otherwise wrap around and could even end up as 0, i.e. success.
+
+When a `Throwable` is not handled, the exit code is taken from the `APPLICATION_ERROR` event: the value given to
+`ApplicationErrorEvent::setExitCode()`, otherwise the code of the `Throwable` or 1 if that is 0. An exit code of 0 is
+turned into 1 here, since the application did fail. A listener for `COMMAND_ERROR` can call
+`CommandErrorEvent::setExitCode(0)` to treat the error as handled; any other value is written to the code of the
+`Throwable` (as in Symfony), which is how it reaches the `APPLICATION_ERROR` event.
+
 ## Things to know before you build on this
 
 **Use `$defaultName`, not `#[AsCommand]`.** Symfony removed the static property in 7.0, but

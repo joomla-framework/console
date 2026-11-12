@@ -446,7 +446,8 @@ class Application extends AbstractApplication
             }
 
             if ($this->shouldAutoExit() && isset($exitCode)) {
-                $exitCode = $exitCode > 255 ? 255 : $exitCode;
+                // Exit codes outside 0-255 are not portable, a negative one could even wrap to 0 (success)
+                $exitCode = $exitCode < 0 || $exitCode > 255 ? 255 : $exitCode;
                 $this->close($exitCode);
             }
         }

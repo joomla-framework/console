@@ -460,6 +460,123 @@ class ApplicationTest extends TestCase
         $this->assertSame(1, $app->getExitCode());
     }
 
+    /**
+     * Data provider for testExitCodeIsLimitedToTheValidRange
+     *
+     * @return  array
+     */
+    public static function dataExitCodes(): array
+    {
+        // Args: Command return value, expected exit code
+        return [
+            'Success'              => [0, 0],
+            'Highest valid code'   => [255, 255],
+            'Above the range'      => [256, 255],
+            'Negative'             => [-1, 255],
+            'Wrapping to 0'        => [-256, 255],
+        ];
+    }
+
+    #[DataProvider('dataExitCodes')]
+    public function testExitCodeIsLimitedToTheValidRange(int $returnValue, int $expected)
+    {
+        $command = new class ($returnValue) extends AbstractCommand {
+            protected static $defaultName = 'exit-code';
+
+            private $returnValue;
+
+            public function __construct(int $returnValue)
+            {
+                $this->returnValue = $returnValue;
+
+                parent::__construct();
+            }
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return $this->returnValue;
+            }
+        };
+
+        $input = new ArrayInput(
+            [
+                'command' => 'exit-code',
+            ]
+        );
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame($expected, $app->getExitCode());
+    }
+
+    public function testErrorExitCodeIsLimitedToTheValidRange()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'exception';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                throw new \Exception('Testing', -256);
+            }
+        };
+
+        $input = new ArrayInput(
+            [
+                'command' => 'exception',
+            ]
+        );
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame(255, $app->getExitCode());
+    }
+
+    public function testCommandErrorExitCodeIsSetByEventListener()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'exception';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                throw new \Exception('Testing', 3);
+            }
+        };
+
+        $dispatcher = new Dispatcher();
+        $dispatcher->addListener(
+            ConsoleEvents::COMMAND_ERROR,
+            function (CommandErrorEvent $event) {
+                $event->setExitCode(119);
+            }
+        );
+
+        $input = new ArrayInput(
+            [
+                'command' => 'exception',
+            ]
+        );
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame(119, $app->getExitCode());
+    }
+
     public function testCommandIsNotExecutedIfEventSkipsCommand()
     {
         $command = new class () extends AbstractCommand {
