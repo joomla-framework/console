@@ -39,7 +39,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\ErrorHandler\ErrorHandler;
 
@@ -353,10 +352,6 @@ class Application extends AbstractApplication
 
             $command = $this->getCommand($name);
         } catch (\Throwable $e) {
-            if ($e instanceof CommandNotFoundException && !($e instanceof NamespaceNotFoundException)) {
-                (new SymfonyStyle($input, $output))->block(sprintf("\nCommand \"%s\" is not defined.\n", $name), null, 'error');
-            }
-
             $event = new CommandErrorEvent($e, $this);
 
             $this->dispatchEvent(ConsoleEvents::COMMAND_ERROR, $event);

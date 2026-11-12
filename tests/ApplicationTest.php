@@ -351,7 +351,12 @@ class ApplicationTest extends TestCase
 
         $screenOutput = $output->fetch();
         $this->assertNotEmpty($screenOutput);
-        $this->assertStringContainsString('Command "foo" is not defined.', $screenOutput);
+        $this->assertSame(
+            1,
+            substr_count($screenOutput, 'The command "foo" does not exist.'),
+            'The error for an unknown command should be rendered exactly once'
+        );
+        $this->assertStringNotContainsString('is not defined', $screenOutput);
 
         $app->setCatchThrowables(false);
 
