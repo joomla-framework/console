@@ -31,9 +31,10 @@ final class MyCommand extends AbstractCommand
 }
 ```
 
-The consequence is the reverse of what Symfony's own documentation suggests: **`#[AsCommand]` is
-not read by this package**, so a command annotated that way ends up with no name. Use
-`$defaultName` for commands extending `AbstractCommand`.
+The consequence is the reverse of what Symfony's own documentation suggests: **in 4.0, `#[AsCommand]`
+is not read by this package**, so a command annotated that way ends up with no name. Use
+`$defaultName` for commands extending `AbstractCommand`. Since 4.1, `AbstractCommand` reads the
+attribute as well, so either works (see [the overview](overview.md)).
 
 Note that `AbstractCommand::getDefaultName()` compares the declaring class with the reflected one,
 so a subclass does **not** inherit its parent's `$defaultName`. Each concrete command needs its own.

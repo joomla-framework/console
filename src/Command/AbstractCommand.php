@@ -10,6 +10,7 @@
 namespace Joomla\Console\Command;
 
 use Joomla\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -63,6 +64,14 @@ abstract class AbstractCommand
      * @since  2.0.0
      */
     private bool $applicationDefinitionMergedWithArgs = false;
+
+    /**
+     * Per-class cache of whether the class declares `$defaultName` and of its `#[AsCommand]` attribute.
+     *
+     * @var    array<string, array{declaresDefaultName: bool, attribute: AsCommand|null}>
+     * @since  __DEPLOY_VERSION__
+     */
+    private static $classMetadata = [];
 
     /**
      * The command's input definition.
@@ -131,8 +140,36 @@ abstract class AbstractCommand
     {
         $this->definition = new InputDefinition();
 
-        if ($name !== null || null !== $name = static::getDefaultName()) {
+        $metadata = self::getClassMetadata(static::class);
+
+        if ($name === null && null !== $name = static::getDefaultName()) {
+            // A name read from the #[AsCommand] attribute may carry aliases and the hidden flag: "|name|alias"
+            if ($metadata['attribute'] !== null && !$metadata['declaresDefaultName']) {
+                $aliases = explode('|', $metadata['attribute']->name);
+
+                if ($aliases[0] === '') {
+                    $this->setHidden(true);
+                    array_shift($aliases);
+                }
+
+                array_shift($aliases);
+                $this->setAliases($aliases);
+            }
+        }
+
+        if ($name !== null) {
             $this->setName($name);
+        }
+
+        if ($metadata['attribute'] !== null) {
+            if ($metadata['attribute']->description !== null) {
+                $this->setDescription($metadata['attribute']->description);
+            }
+
+            // The help property was added in Symfony 7.4
+            if (isset($metadata['attribute']->help)) {
+                $this->setHelp($metadata['attribute']->help);
+            }
         }
 
         $this->configure();
@@ -268,16 +305,27 @@ abstract class AbstractCommand
      *
      * This allows a command name to defined and referenced without instantiating the full command class.
      *
+     * The name is read from the static `$defaultName` property if the class declares it, otherwise from the class' `#[AsCommand]`
+     * attribute. Neither is inherited from a parent class.
+     *
      * @return  string|null
      *
      * @since  2.0.0
      */
     public static function getDefaultName(): ?string
     {
-        $class = \get_called_class();
-        $r     = new \ReflectionProperty($class, 'defaultName');
+        $metadata = self::getClassMetadata(static::class);
 
-        return $class === $r->class ? static::$defaultName : null;
+        if ($metadata['declaresDefaultName']) {
+            return static::$defaultName;
+        }
+
+        if ($metadata['attribute'] === null) {
+            return null;
+        }
+
+        // Strip the aliases and the hidden flag from the attribute's name
+        return explode('|', ltrim($metadata['attribute']->name, '|'))[0];
     }
 
     /**
@@ -576,5 +624,28 @@ abstract class AbstractCommand
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * Get the cached reflection data of a command class.
+     *
+     * @param   string  $class  The command class
+     *
+     * @return  array{declaresDefaultName: bool, attribute: AsCommand|null}
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private static function getClassMetadata(string $class): array
+    {
+        if (!isset(self::$classMetadata[$class])) {
+            $attributes = (new \ReflectionClass($class))->getAttributes(AsCommand::class);
+
+            self::$classMetadata[$class] = [
+                'declaresDefaultName' => (new \ReflectionProperty($class, 'defaultName'))->class === $class,
+                'attribute'           => $attributes ? $attributes[0]->newInstance() : null,
+            ];
+        }
+
+        return self::$classMetadata[$class];
     }
 }
