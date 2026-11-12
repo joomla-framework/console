@@ -368,6 +368,9 @@ class Application extends AbstractApplication
             $e = $event->getError();
 
             throw $e;
+        } finally {
+            // The help request is consumed by getCommand(); reset it in case the lookup failed before that happened
+            $this->wantsHelp = false;
         }
 
         $this->runningCommand = $command;
