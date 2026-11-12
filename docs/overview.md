@@ -128,7 +128,8 @@ final class MyCommand extends AbstractCommand
 }
 ```
 
-The static `$defaultName` property still works. If a class declares both, `$defaultName` provides the name and the
+The static `$defaultName` property still works, but is deprecated since 4.1 and triggers a deprecation notice; it will
+not be read in 5.0. If a class declares both, `$defaultName` provides the name and the
 attribute's aliases and hidden flag are not used; a name passed to the constructor takes precedence over both. Anything
 set in `configure()` overrides the attribute.
 

@@ -30,6 +30,8 @@ abstract class AbstractCommand
      *
      * @var    string|null
      * @since  2.0.0
+     *
+     * @deprecated  5.0 Use the #[AsCommand] attribute instead
      */
     protected static $defaultName;
 
@@ -317,7 +319,20 @@ abstract class AbstractCommand
         $metadata = self::getClassMetadata(static::class);
 
         if ($metadata['declaresDefaultName']) {
-            return static::$defaultName;
+            // @phpstan-ignore staticProperty.deprecated
+            $defaultName = static::$defaultName;
+
+            if ($defaultName !== null) {
+                trigger_deprecation(
+                    'joomla/console',
+                    '__DEPLOY_VERSION__',
+                    'Naming a command with the static $defaultName property is deprecated and will not be supported in 5.0, add the %s attribute to %s instead.',
+                    AsCommand::class,
+                    static::class
+                );
+            }
+
+            return $defaultName;
         }
 
         if ($metadata['attribute'] === null) {
