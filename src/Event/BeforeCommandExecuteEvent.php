@@ -74,7 +74,7 @@ class BeforeCommandExecuteEvent extends ConsoleEvent
      */
     public function enableCommand(): void
     {
-        $this->commandEnabled = false;
+        $this->commandEnabled = true;
     }
 
     /**
