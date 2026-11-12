@@ -155,10 +155,13 @@ if (!flock($lock, LOCK_EX | LOCK_NB)) {
 }
 ```
 
-**`ContainerLoader` cannot distinguish "unknown command" from "unregistered service".** Its
-`has()` requires both a map entry and a container entry, so a command listed in the map whose
-service was never registered reports "Command … does not exist." Check the container registration
-when a command you added does not appear.
+**A mapped command whose service is not registered does not exist for the application.**
+`ContainerLoader::has()` requires both a map entry and a container entry, so the application reports
+"The command … does not exist." for a command listed in the map whose service was never registered.
+`ContainerLoader::get()` tells the two cases apart: a name missing from the map throws
+`CommandNotFoundException`, a mapped name whose service the container does not have throws a
+`Symfony\Component\Console\Exception\LogicException` naming the service ID. Check the container
+registration when a command you added does not appear.
 
 **`Application` is a reimplementation, not a subclass.** It reproduces Symfony's `Application`
 rather than extending it, so fixes Symfony makes to command resolution, error rendering or the
