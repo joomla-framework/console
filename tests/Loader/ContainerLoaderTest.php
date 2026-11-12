@@ -16,6 +16,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * Test class for \Joomla\Console\Loader\ContainerLoader
@@ -66,6 +67,21 @@ class ContainerLoaderTest extends TestCase
     public function testTheLoaderDoesNotRetrieveAnUnknownCommand()
     {
         $this->expectException(CommandNotFoundException::class);
+        $this->expectExceptionMessage('Command "test:unknown" does not exist.');
+
+        $this->container->expects($this->never())
+            ->method('has');
+
+        $this->container->expects($this->never())
+            ->method('get');
+
+        (new ContainerLoader($this->container, ['test:loader' => 'test.loader']))->get('test:unknown');
+    }
+
+    public function testTheLoaderReportsAMappedCommandWhoseServiceIsMissing()
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Command "test:loader" is mapped to the service "test.loader", which is not registered in the container.');
 
         $commandName = 'test:loader';
         $serviceId   = 'test.loader';
@@ -79,6 +95,21 @@ class ContainerLoaderTest extends TestCase
             ->method('get');
 
         (new ContainerLoader($this->container, [$commandName => $serviceId]))->get($commandName);
+    }
+
+    public function testTheLoaderDoesNotHaveAMappedCommandWhoseServiceIsMissing()
+    {
+        $commandName = 'test:loader';
+        $serviceId   = 'test.loader';
+
+        $this->container->expects($this->once())
+            ->method('has')
+            ->with($serviceId)
+            ->willReturn(false);
+
+        $this->assertFalse(
+            (new ContainerLoader($this->container, [$commandName => $serviceId]))->has($commandName)
+        );
     }
 
     public function testTheLoaderHasACommand()

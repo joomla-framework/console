@@ -12,6 +12,7 @@ namespace Joomla\Console\Loader;
 use Joomla\Console\Command\AbstractCommand;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Exception\LogicException;
 
 /**
  * PSR-11 compatible command loader.
@@ -58,12 +59,23 @@ final class ContainerLoader implements LoaderInterface
      * @return  AbstractCommand
      *
      * @since   2.0.0
-     * @throws  CommandNotFoundException
+     * @throws  CommandNotFoundException  If the command is not in the command map
+     * @throws  LogicException            If the command is mapped to a service the container does not have
      */
     public function get(string $name): AbstractCommand
     {
-        if (!$this->has($name)) {
+        if (!isset($this->commandMap[$name])) {
             throw new CommandNotFoundException(sprintf('Command "%s" does not exist.', $name));
+        }
+
+        if (!$this->container->has($this->commandMap[$name])) {
+            throw new LogicException(
+                sprintf(
+                    'Command "%s" is mapped to the service "%s", which is not registered in the container.',
+                    $name,
+                    $this->commandMap[$name]
+                )
+            );
         }
 
         return $this->container->get($this->commandMap[$name]);
