@@ -9,6 +9,11 @@ excellent infrastructure however its two main pieces, the base Application class
 the Joomla code structure and methodology. Therefore, this package provides a replacement for these core classes and aims to be able
 to use the Symfony component API as practical.
 
+Since 4.1 the package works with Symfony Console 7 and 8 (Symfony 8 needs PHP 8.4). `symfony/error-handler` is no
+longer installed with it: the application only checks whether Symfony's `ErrorHandler` is the registered exception
+handler and, if so, routes uncaught exceptions to its own rendering through it. Require `symfony/error-handler` in your
+project if you use it.
+
 ### Console Application
 
 Unlike the Application's `AbstractCliApplication` class, this package provides a fully functional and somewhat opinionated `Application` class
