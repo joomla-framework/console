@@ -24,6 +24,7 @@ use Joomla\Console\Helper\DescriptorHelper;
 use Joomla\Console\Loader\ContainerLoader;
 use Joomla\Console\Tests\Fixtures\Command\AliasedCommand;
 use Joomla\Console\Tests\Fixtures\Command\AnonymousCommand;
+use Joomla\Console\Tests\Fixtures\Command\AttributeCommand;
 use Joomla\Console\Tests\Fixtures\Command\DisabledCommand;
 use Joomla\Console\Tests\Fixtures\Command\NamespacedCommand;
 use Joomla\Console\Tests\Fixtures\Command\SkipConfigurationCommand;
@@ -208,6 +209,15 @@ class ApplicationTest extends TestCase
 
         $this->object->addCommand(new DisabledCommand());
         $this->assertFalse($this->object->hasCommand('test:disabled'));
+    }
+
+    public function testAddCommandNamedByAttribute()
+    {
+        $command = new AttributeCommand();
+        $this->object->addCommand($command);
+
+        $this->assertTrue($this->object->hasCommand('test:attribute'));
+        $this->assertSame($command, $this->object->getCommand('test:attribute'));
     }
 
     public function testAddCommandWithBrokenConstructor()
