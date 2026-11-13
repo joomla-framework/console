@@ -10,6 +10,7 @@
 namespace Joomla\Console\Command;
 
 use Joomla\Console\Application;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -25,20 +26,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractCommand
 {
     /**
-     * The default command name
-     *
-     * @var    string|null
-     * @since  2.0.0
-     */
-    protected static $defaultName;
-
-    /**
      * The command's aliases.
      *
      * @var    string[]
      * @since  2.0.0
      */
-    private $aliases = [];
+    private array $aliases = [];
 
     /**
      * The application running this command.
@@ -46,7 +39,7 @@ abstract class AbstractCommand
      * @var    Application|null
      * @since  2.0.0
      */
-    private $application;
+    private ?Application $application = null;
 
     /**
      * Flag tracking whether the application definition has been merged to this command.
@@ -54,7 +47,7 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $applicationDefinitionMerged = false;
+    private bool $applicationDefinitionMerged = false;
 
     /**
      * Flag tracking whether the application definition with arguments has been merged to this command.
@@ -62,7 +55,15 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $applicationDefinitionMergedWithArgs = false;
+    private bool $applicationDefinitionMergedWithArgs = false;
+
+    /**
+     * Per-class cache of the `#[AsCommand]` attribute.
+     *
+     * @var    array<string, array{attribute: AsCommand|null}>
+     * @since  __DEPLOY_VERSION__
+     */
+    private static array $classMetadata = [];
 
     /**
      * The command's input definition.
@@ -70,7 +71,7 @@ abstract class AbstractCommand
      * @var    InputDefinition
      * @since  2.0.0
      */
-    private $definition;
+    private ?InputDefinition $definition = null;
 
     /**
      * The command's description.
@@ -78,7 +79,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $description = '';
+    private string $description = '';
 
     /**
      * The command's help.
@@ -86,7 +87,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $help = '';
+    private string $help = '';
 
     /**
      * The command's input helper set.
@@ -94,7 +95,7 @@ abstract class AbstractCommand
      * @var    HelperSet|null
      * @since  2.0.0
      */
-    private $helperSet;
+    private ?HelperSet $helperSet = null;
 
     /**
      * Flag tracking whether the command is hidden from the command listing.
@@ -102,7 +103,7 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $hidden = false;
+    private bool $hidden = false;
 
     /**
      * The command's name.
@@ -110,7 +111,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * The command's synopses.
@@ -118,7 +119,7 @@ abstract class AbstractCommand
      * @var    string[]
      * @since  2.0.0
      */
-    private $synopsis = [];
+    private array $synopsis = [];
 
     /**
      * Command constructor.
@@ -131,8 +132,36 @@ abstract class AbstractCommand
     {
         $this->definition = new InputDefinition();
 
-        if ($name !== null || null !== $name = static::getDefaultName()) {
+        $metadata = self::getClassMetadata(static::class);
+
+        if ($name === null && null !== $name = static::getDefaultName()) {
+            // A name read from the #[AsCommand] attribute may carry aliases and the hidden flag: "|name|alias"
+            if ($metadata['attribute'] !== null) {
+                $aliases = explode('|', $metadata['attribute']->name);
+
+                if ($aliases[0] === '') {
+                    $this->setHidden(true);
+                    array_shift($aliases);
+                }
+
+                array_shift($aliases);
+                $this->setAliases($aliases);
+            }
+        }
+
+        if ($name !== null) {
             $this->setName($name);
+        }
+
+        if ($metadata['attribute'] !== null) {
+            if ($metadata['attribute']->description !== null) {
+                $this->setDescription($metadata['attribute']->description);
+            }
+
+            // The help property was added in Symfony 7.4
+            if (isset($metadata['attribute']->help)) {
+                $this->setHelp($metadata['attribute']->help);
+            }
         }
 
         $this->configure();
@@ -150,7 +179,7 @@ abstract class AbstractCommand
      *
      * @since   2.0.0
      */
-    public function addArgument(string $name, ?int $mode = null, string $description = '', $default = null): self
+    public function addArgument(string $name, ?int $mode = null, string $description = '', mixed $default = null): self
     {
         $this->definition->addArgument(new InputArgument($name, $mode, $description, $default));
 
@@ -160,17 +189,17 @@ abstract class AbstractCommand
     /**
      * Adds an option to the input definition.
      *
-     * @param   string         $name         The option name
-     * @param   string|array   $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param   ?integer       $mode         The option mode: One of the VALUE_* constants
-     * @param   string         $description  A description text
-     * @param   ?mixed         $default      The default value (must be null for InputOption::VALUE_NONE)
+     * @param   string             $name         The option name
+     * @param   string|array|null  $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param   ?integer           $mode         The option mode: One of the VALUE_* constants
+     * @param   string             $description  A description text
+     * @param   mixed              $default      The default value (must be null for InputOption::VALUE_NONE)
      *
      * @return  $this
      *
      * @since   2.0.0
      */
-    public function addOption(string $name, $shortcut = null, ?int $mode = null, $description = '', $default = null): self
+    public function addOption(string $name, string|array|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null): self
     {
         $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
 
@@ -268,16 +297,22 @@ abstract class AbstractCommand
      *
      * This allows a command name to defined and referenced without instantiating the full command class.
      *
+     * The name is read from the class' `#[AsCommand]` attribute, which is not inherited from a parent class.
+     *
      * @return  string|null
      *
      * @since  2.0.0
      */
     public static function getDefaultName(): ?string
     {
-        $class = \get_called_class();
-        $r     = new \ReflectionProperty($class, 'defaultName');
+        $metadata = self::getClassMetadata(static::class);
 
-        return $class === $r->class ? static::$defaultName : null;
+        if ($metadata['attribute'] === null) {
+            return null;
+        }
+
+        // Strip the aliases and the hidden flag from the attribute's name
+        return explode('|', ltrim($metadata['attribute']->name, '|'))[0];
     }
 
     /**
@@ -497,7 +532,7 @@ abstract class AbstractCommand
      *
      * @since   2.0.0
      */
-    public function setDefinition($definition): void
+    public function setDefinition(array|InputDefinition $definition): void
     {
         if ($definition instanceof InputDefinition) {
             $this->definition = $definition;
@@ -576,5 +611,27 @@ abstract class AbstractCommand
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * Get the cached reflection data of a command class.
+     *
+     * @param   string  $class  The command class
+     *
+     * @return  array{attribute: AsCommand|null}
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private static function getClassMetadata(string $class): array
+    {
+        if (!isset(self::$classMetadata[$class])) {
+            $attributes = (new \ReflectionClass($class))->getAttributes(AsCommand::class);
+
+            self::$classMetadata[$class] = [
+                'attribute' => $attributes ? $attributes[0]->newInstance() : null,
+            ];
+        }
+
+        return self::$classMetadata[$class];
     }
 }

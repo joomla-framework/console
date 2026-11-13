@@ -112,12 +112,26 @@ there are several console specific events:
 
 ## Things to know before you build on this
 
-**Use `$defaultName`, not `#[AsCommand]`.** Symfony removed the static property in 7.0, but
-`AbstractCommand` reads it through its own reflection and does not read the attribute. A command
-annotated with `#[AsCommand]` therefore has no name here.
+**Name a command with `#[AsCommand]`.** `AbstractCommand` reads Symfony's `#[AsCommand]` attribute: the name
+(including the `name|alias` syntax and a leading `|` for a hidden command), `aliases`, `hidden`, `description` and `help`
+(which needs Symfony 7.4 or later); `usages` is not supported. The static `$defaultName` property that 4.x also read is
+no longer supported; a command that only declares it has no name.
 
-`getDefaultName()` also checks that the property is declared on the class being asked, so a
-subclass does not inherit the name of its parent — give every concrete command its own.
+```php
+use Joomla\Console\Command\AbstractCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
+
+#[AsCommand(name: 'app:do-something', description: 'Does something', aliases: ['app:something'])]
+final class MyCommand extends AbstractCommand
+{
+    // ...
+}
+```
+
+A name passed to the constructor takes precedence over the attribute, and anything set in `configure()` overrides it.
+
+`getDefaultName()` only looks at the class being asked, so a subclass does not inherit the attribute of its parent —
+give every concrete command its own.
 
 **There is no signal handling.** A `SIGTERM` during a long-running command — a deployment, a
 supervisor restart — kills the process wherever it happens to be. Add it yourself for anything that

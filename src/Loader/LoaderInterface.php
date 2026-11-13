@@ -49,5 +49,5 @@ interface LoaderInterface
      *
      * @since   2.0.0
      */
-    public function has($name): bool;
+    public function has(string $name): bool;
 }

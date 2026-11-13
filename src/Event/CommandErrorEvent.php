@@ -26,7 +26,7 @@ class CommandErrorEvent extends ConsoleEvent
      * @var    \Throwable
      * @since  2.0.0
      */
-    private $error;
+    private \Throwable $error;
 
     /**
      * The exit code to use for the application.
@@ -34,7 +34,7 @@ class CommandErrorEvent extends ConsoleEvent
      * @var    integer|null
      * @since  2.0.0
      */
-    private $exitCode;
+    private ?int $exitCode = null;
 
     /**
      * Event constructor.

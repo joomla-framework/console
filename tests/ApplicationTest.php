@@ -24,6 +24,7 @@ use Joomla\Console\Helper\DescriptorHelper;
 use Joomla\Console\Loader\ContainerLoader;
 use Joomla\Console\Tests\Fixtures\Command\AliasedCommand;
 use Joomla\Console\Tests\Fixtures\Command\AnonymousCommand;
+use Joomla\Console\Tests\Fixtures\Command\AttributeCommand;
 use Joomla\Console\Tests\Fixtures\Command\DisabledCommand;
 use Joomla\Console\Tests\Fixtures\Command\NamespacedCommand;
 use Joomla\Console\Tests\Fixtures\Command\SkipConfigurationCommand;
@@ -36,6 +37,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -208,6 +210,15 @@ class ApplicationTest extends TestCase
 
         $this->object->addCommand(new DisabledCommand());
         $this->assertFalse($this->object->hasCommand('test:disabled'));
+    }
+
+    public function testAddCommandNamedByAttribute()
+    {
+        $command = new AttributeCommand();
+        $this->object->addCommand($command);
+
+        $this->assertTrue($this->object->hasCommand('test:attribute'));
+        $this->assertSame($command, $this->object->getCommand('test:attribute'));
     }
 
     public function testAddCommandWithBrokenConstructor()
@@ -435,9 +446,7 @@ class ApplicationTest extends TestCase
 
     public function testCommandErrorHasExitCodeOneIfExceptionHasCodeZero()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'exception';
-
+        $command = new #[AsCommand(name: 'exception')] class () extends AbstractCommand {
             protected function doExecute(InputInterface $input, OutputInterface $output): int
             {
                 throw new \Exception('Testing', 0);
@@ -462,9 +471,7 @@ class ApplicationTest extends TestCase
 
     public function testCommandIsNotExecutedIfEventSkipsCommand()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'no-run';
-
+        $command = new #[AsCommand(name: 'no-run')] class () extends AbstractCommand {
             private $executed = false;
 
             protected function doExecute(InputInterface $input, OutputInterface $output): int

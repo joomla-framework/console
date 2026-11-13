@@ -8,21 +8,16 @@
 namespace Joomla\Console\Tests\Fixtures\Command;
 
 use Joomla\Console\Command\AbstractCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Internal test command to test namespace support.
  */
+#[AsCommand(name: 'top:namespaced')]
 final class TopNamespacedCommand extends AbstractCommand
 {
-    /**
-     * The default command name
-     *
-     * @var  string
-     */
-    protected static $defaultName = 'top:namespaced';
-
     /**
      * Internal function to execute the command.
      *

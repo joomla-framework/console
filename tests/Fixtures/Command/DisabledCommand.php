@@ -8,21 +8,16 @@
 namespace Joomla\Console\Tests\Fixtures\Command;
 
 use Joomla\Console\Command\AbstractCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Internal test command to test disabled command support.
  */
+#[AsCommand(name: 'test:disabled')]
 final class DisabledCommand extends AbstractCommand
 {
-    /**
-     * The default command name
-     *
-     * @var  string
-     */
-    protected static $defaultName = 'test:disabled';
-
     /**
      * Internal function to execute the command.
      *
