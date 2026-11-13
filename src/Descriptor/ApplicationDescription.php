@@ -34,7 +34,7 @@ final class ApplicationDescription
      * @var    AbstractCommand[]
      * @since  2.0.0
      */
-    private $aliases;
+    private ?array $aliases = null;
 
     /**
      * The application being described.
@@ -42,7 +42,7 @@ final class ApplicationDescription
      * @var    Application
      * @since  2.0.0
      */
-    private $application;
+    private Application $application;
 
     /**
      * The application's commands.
@@ -50,7 +50,7 @@ final class ApplicationDescription
      * @var    AbstractCommand[]
      * @since  2.0.0
      */
-    private $commands;
+    private ?array $commands = null;
 
     /**
      * The command namespace to process.
@@ -58,7 +58,7 @@ final class ApplicationDescription
      * @var    string
      * @since  2.0.0
      */
-    private $namespace = '';
+    private string $namespace = '';
 
     /**
      * The application's command namespaces.
@@ -66,7 +66,7 @@ final class ApplicationDescription
      * @var    array[]
      * @since  2.0.0
      */
-    private $namespaces;
+    private ?array $namespaces = null;
 
     /**
      * Flag indicating hidden commands should be displayed.
@@ -74,7 +74,7 @@ final class ApplicationDescription
      * @var    boolean
      * @since  2.0.0
      */
-    private $showHidden;
+    private bool $showHidden;
 
     /**
      * Constructor.

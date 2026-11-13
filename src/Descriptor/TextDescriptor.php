@@ -252,7 +252,7 @@ final class TextDescriptor extends SymfonyTextDescriptor
      *
      * @since   2.0.0
      */
-    private function writeText($content, array $options = []): void
+    private function writeText(string $content, array $options = []): void
     {
         $this->write(
             isset($options['raw_text']) && $options['raw_text'] ? strip_tags($content) : $content,

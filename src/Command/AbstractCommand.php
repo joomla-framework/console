@@ -38,7 +38,7 @@ abstract class AbstractCommand
      * @var    string[]
      * @since  2.0.0
      */
-    private $aliases = [];
+    private array $aliases = [];
 
     /**
      * The application running this command.
@@ -46,7 +46,7 @@ abstract class AbstractCommand
      * @var    Application|null
      * @since  2.0.0
      */
-    private $application;
+    private ?Application $application = null;
 
     /**
      * Flag tracking whether the application definition has been merged to this command.
@@ -54,7 +54,7 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $applicationDefinitionMerged = false;
+    private bool $applicationDefinitionMerged = false;
 
     /**
      * Flag tracking whether the application definition with arguments has been merged to this command.
@@ -62,7 +62,7 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $applicationDefinitionMergedWithArgs = false;
+    private bool $applicationDefinitionMergedWithArgs = false;
 
     /**
      * The command's input definition.
@@ -70,7 +70,7 @@ abstract class AbstractCommand
      * @var    InputDefinition
      * @since  2.0.0
      */
-    private $definition;
+    private ?InputDefinition $definition = null;
 
     /**
      * The command's description.
@@ -78,7 +78,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $description = '';
+    private string $description = '';
 
     /**
      * The command's help.
@@ -86,7 +86,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $help = '';
+    private string $help = '';
 
     /**
      * The command's input helper set.
@@ -94,7 +94,7 @@ abstract class AbstractCommand
      * @var    HelperSet|null
      * @since  2.0.0
      */
-    private $helperSet;
+    private ?HelperSet $helperSet = null;
 
     /**
      * Flag tracking whether the command is hidden from the command listing.
@@ -102,7 +102,7 @@ abstract class AbstractCommand
      * @var    boolean
      * @since  2.0.0
      */
-    private $hidden = false;
+    private bool $hidden = false;
 
     /**
      * The command's name.
@@ -110,7 +110,7 @@ abstract class AbstractCommand
      * @var    string
      * @since  2.0.0
      */
-    private $name;
+    private ?string $name = null;
 
     /**
      * The command's synopses.
@@ -118,7 +118,7 @@ abstract class AbstractCommand
      * @var    string[]
      * @since  2.0.0
      */
-    private $synopsis = [];
+    private array $synopsis = [];
 
     /**
      * Command constructor.
@@ -150,7 +150,7 @@ abstract class AbstractCommand
      *
      * @since   2.0.0
      */
-    public function addArgument(string $name, ?int $mode = null, string $description = '', $default = null): self
+    public function addArgument(string $name, ?int $mode = null, string $description = '', mixed $default = null): self
     {
         $this->definition->addArgument(new InputArgument($name, $mode, $description, $default));
 
@@ -160,17 +160,17 @@ abstract class AbstractCommand
     /**
      * Adds an option to the input definition.
      *
-     * @param   string         $name         The option name
-     * @param   string|array   $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param   ?integer       $mode         The option mode: One of the VALUE_* constants
-     * @param   string         $description  A description text
-     * @param   ?mixed         $default      The default value (must be null for InputOption::VALUE_NONE)
+     * @param   string             $name         The option name
+     * @param   string|array|null  $shortcut     The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param   ?integer           $mode         The option mode: One of the VALUE_* constants
+     * @param   string             $description  A description text
+     * @param   mixed              $default      The default value (must be null for InputOption::VALUE_NONE)
      *
      * @return  $this
      *
      * @since   2.0.0
      */
-    public function addOption(string $name, $shortcut = null, ?int $mode = null, $description = '', $default = null): self
+    public function addOption(string $name, string|array|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null): self
     {
         $this->definition->addOption(new InputOption($name, $shortcut, $mode, $description, $default));
 
@@ -497,7 +497,7 @@ abstract class AbstractCommand
      *
      * @since   2.0.0
      */
-    public function setDefinition($definition): void
+    public function setDefinition(array|InputDefinition $definition): void
     {
         if ($definition instanceof InputDefinition) {
             $this->definition = $definition;

@@ -34,7 +34,7 @@ class BeforeCommandExecuteEvent extends ConsoleEvent
      * @var    boolean
      * @since  2.0.0
      */
-    private $commandEnabled = true;
+    private bool $commandEnabled = true;
 
     /**
      * Event constructor.

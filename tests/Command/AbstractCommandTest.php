@@ -85,6 +85,52 @@ class AbstractCommandTest extends TestCase
         $this->assertTrue($command->getDefinition()->hasOption('test'));
     }
 
+    public function testAnOptionIsAddedWithArrayShortcuts()
+    {
+        $command = new class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $command->addOption('test', ['t', 'T'], InputOption::VALUE_REQUIRED, 'Test option', 'default');
+
+        $option = $command->getDefinition()->getOption('test');
+        $this->assertSame('t|T', $option->getShortcut());
+        $this->assertSame('Test option', $option->getDescription());
+        $this->assertSame('default', $option->getDefault());
+    }
+
+    public function testTheDefinitionIsSetFromAnArray()
+    {
+        $command = new class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $command->setDefinition([new InputArgument('bar'), new InputOption('foo')]);
+
+        $this->assertTrue($command->getDefinition()->hasArgument('bar'));
+        $this->assertTrue($command->getDefinition()->hasOption('foo'));
+    }
+
+    public function testTheDefinitionMustBeAnArrayOrAnInputDefinition()
+    {
+        $command = new class () extends AbstractCommand {
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $this->expectException(\TypeError::class);
+
+        $command->setDefinition('foo');
+    }
+
     public function testTheDefaultCommandNameIsRetrieved()
     {
         $command = new class () extends AbstractCommand {

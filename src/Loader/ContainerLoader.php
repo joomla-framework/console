@@ -26,7 +26,7 @@ final class ContainerLoader implements LoaderInterface
      * @var    ContainerInterface
      * @since  2.0.0
      */
-    private $container;
+    private ContainerInterface $container;
 
     /**
      * The command name to service ID map.
@@ -34,7 +34,7 @@ final class ContainerLoader implements LoaderInterface
      * @var    string[]
      * @since  2.0.0
      */
-    private $commandMap;
+    private array $commandMap;
 
     /**
      * Constructor.
@@ -90,7 +90,7 @@ final class ContainerLoader implements LoaderInterface
      *
      * @since   2.0.0
      */
-    public function has($name): bool
+    public function has(string $name): bool
     {
         return isset($this->commandMap[$name]) && $this->container->has($this->commandMap[$name]);
     }
