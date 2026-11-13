@@ -7,6 +7,7 @@
 
 namespace Joomla\Console\Tests;
 
+use Joomla\Application\ApplicationEvents;
 use Joomla\Console\Application;
 use Joomla\Console\Command\AbstractCommand;
 use Joomla\Console\Command\HelpCommand;
@@ -29,6 +30,7 @@ use Joomla\Console\Tests\Fixtures\Command\NamespacedCommand;
 use Joomla\Console\Tests\Fixtures\Command\SkipConfigurationCommand;
 use Joomla\Console\Tests\Fixtures\Command\TopNamespacedCommand;
 use Joomla\Event\Dispatcher;
+use Joomla\Event\EventInterface;
 use Joomla\Test\TestHelper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -379,6 +381,198 @@ class ApplicationTest extends TestCase
         $app->execute();
 
         $this->assertTrue($app->wasClosed());
+    }
+
+    public function testEventsAreDispatchedInOrderForASuccessfulCommand()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'success';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $events     = [];
+        $dispatcher = new Dispatcher();
+
+        foreach (
+            [
+                ApplicationEvents::BEFORE_EXECUTE,
+                ConsoleEvents::BEFORE_COMMAND_EXECUTE,
+                ConsoleEvents::COMMAND_ERROR,
+                ConsoleEvents::TERMINATE,
+                ConsoleEvents::APPLICATION_ERROR,
+                ApplicationEvents::AFTER_EXECUTE,
+            ] as $eventName
+        ) {
+            $dispatcher->addListener(
+                $eventName,
+                function (EventInterface $event) use (&$events) {
+                    $events[] = $event->getName();
+                }
+            );
+        }
+
+        $input  = new ArrayInput(['command' => 'success']);
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame(
+            [
+                ApplicationEvents::BEFORE_EXECUTE,
+                ConsoleEvents::BEFORE_COMMAND_EXECUTE,
+                ConsoleEvents::TERMINATE,
+                ApplicationEvents::AFTER_EXECUTE,
+            ],
+            $events
+        );
+        $this->assertSame(0, $app->getExitCode());
+    }
+
+    public function testTerminateEventCanChangeTheExitCode()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'success';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                return 0;
+            }
+        };
+
+        $dispatcher = new Dispatcher();
+        $dispatcher->addListener(
+            ConsoleEvents::TERMINATE,
+            function (TerminateEvent $event) use ($command) {
+                $this->assertSame($command, $event->getCommand());
+                $this->assertSame(0, $event->getExitCode());
+
+                $event->setExitCode(42);
+            }
+        );
+
+        $input  = new ArrayInput(['command' => 'success']);
+        $output = new NullOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame(42, $app->getExitCode());
+    }
+
+    public function testCommandErrorCanBeHandledByEventListener()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'exception';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                throw new \RuntimeException('Testing', 5);
+            }
+        };
+
+        $events     = [];
+        $dispatcher = new Dispatcher();
+        $dispatcher->addListener(
+            ConsoleEvents::COMMAND_ERROR,
+            function (CommandErrorEvent $event) use ($command, &$events) {
+                $events[] = $event->getName();
+
+                $this->assertSame($command, $event->getCommand());
+                $this->assertSame('Testing', $event->getError()->getMessage());
+                $this->assertSame(5, $event->getExitCode());
+
+                $event->setExitCode(0);
+            }
+        );
+        $dispatcher->addListener(
+            ConsoleEvents::TERMINATE,
+            function (TerminateEvent $event) use (&$events) {
+                $events[] = $event->getName();
+
+                $this->assertSame(0, $event->getExitCode());
+            }
+        );
+        $dispatcher->addListener(
+            ConsoleEvents::APPLICATION_ERROR,
+            function (ApplicationErrorEvent $event) use (&$events) {
+                $events[] = $event->getName();
+            }
+        );
+
+        $input  = new ArrayInput(['command' => 'exception']);
+        $output = new BufferedOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame([ConsoleEvents::COMMAND_ERROR, ConsoleEvents::TERMINATE], $events);
+        $this->assertSame(0, $app->getExitCode());
+        $this->assertStringNotContainsString('Testing', $output->fetch(), 'A handled error is not rendered');
+    }
+
+    public function testUnhandledCommandErrorReachesTheApplicationErrorEvent()
+    {
+        $command = new class () extends AbstractCommand {
+            protected static $defaultName = 'exception';
+
+            protected function doExecute(InputInterface $input, OutputInterface $output): int
+            {
+                throw new \RuntimeException('Testing', 5);
+            }
+        };
+
+        $events     = [];
+        $dispatcher = new Dispatcher();
+
+        foreach ([ConsoleEvents::COMMAND_ERROR, ConsoleEvents::TERMINATE, ApplicationEvents::AFTER_EXECUTE] as $eventName) {
+            $dispatcher->addListener(
+                $eventName,
+                function (EventInterface $event) use (&$events) {
+                    $events[] = $event->getName();
+                }
+            );
+        }
+
+        $dispatcher->addListener(
+            ConsoleEvents::APPLICATION_ERROR,
+            function (ApplicationErrorEvent $event) use ($command, &$events) {
+                $events[] = $event->getName();
+
+                $this->assertSame('Testing', $event->getError()->getMessage());
+                $this->assertSame($command, $event->getCommand());
+            }
+        );
+
+        $input  = new ArrayInput(['command' => 'exception']);
+        $output = new BufferedOutput();
+
+        $app = $this->buildMockClosingApplication($input, $output);
+
+        $app->setDispatcher($dispatcher);
+        $app->addCommand($command);
+        $app->setAutoExit(true);
+        $app->execute();
+
+        $this->assertSame([ConsoleEvents::COMMAND_ERROR, ConsoleEvents::TERMINATE, ConsoleEvents::APPLICATION_ERROR], $events);
+        $this->assertSame(5, $app->getExitCode());
+        $this->assertStringContainsString('Testing', $output->fetch());
     }
 
     public function testExitCodeIsSetByEventListener()
