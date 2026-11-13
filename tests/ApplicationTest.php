@@ -37,6 +37,7 @@ use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -445,9 +446,7 @@ class ApplicationTest extends TestCase
 
     public function testCommandErrorHasExitCodeOneIfExceptionHasCodeZero()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'exception';
-
+        $command = new #[AsCommand(name: 'exception')] class () extends AbstractCommand {
             protected function doExecute(InputInterface $input, OutputInterface $output): int
             {
                 throw new \Exception('Testing', 0);
@@ -472,9 +471,7 @@ class ApplicationTest extends TestCase
 
     public function testCommandIsNotExecutedIfEventSkipsCommand()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'no-run';
-
+        $command = new #[AsCommand(name: 'no-run')] class () extends AbstractCommand {
             private $executed = false;
 
             protected function doExecute(InputInterface $input, OutputInterface $output): int

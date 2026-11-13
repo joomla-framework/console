@@ -11,7 +11,6 @@
         "joomla/event": "^4.0",
         "joomla/string": "^4.0",
         "symfony/console": "^v7.0.0",
-        "symfony/deprecation-contracts": "^2|^3",
         "symfony/error-handler": "^7"
     },
     "require-dev": {

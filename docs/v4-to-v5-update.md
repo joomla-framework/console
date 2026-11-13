@@ -22,5 +22,28 @@ same signatures, otherwise PHP refuses to load them.
 An application class overriding `execute()` needs the `: void` return type, and a custom command loader
 needs the `string` type on `has()`.
 
-All private properties are typed as well. `AbstractCommand::$defaultName` is left untyped, since
-commands redeclare it.
+All private properties are typed as well.
+
+## `AbstractCommand::$defaultName` removed
+
+Naming a command with the static `$defaultName` property was deprecated in 4.1 in favour of Symfony's
+`#[AsCommand]` attribute, which replaced it in Symfony 7.0. 5.0 no longer reads the property: a
+command that only declares it has no name, and `Application::addCommand()` rejects it with
+"The command class … does not have a name". `AbstractCommand::getDefaultName()` reads the attribute only.
+
+```php
+// v4
+final class MyCommand extends AbstractCommand
+{
+    protected static $defaultName = 'app:do-something';
+}
+
+// v5
+#[AsCommand(name: 'app:do-something')]
+final class MyCommand extends AbstractCommand
+{
+}
+```
+
+The `help` and `list` commands carry the attribute already. `symfony/deprecation-contracts`, which 4.1
+required for the deprecation notice, is no longer a dependency.

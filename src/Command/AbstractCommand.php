@@ -26,16 +26,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 abstract class AbstractCommand
 {
     /**
-     * The default command name
-     *
-     * @var    string|null
-     * @since  2.0.0
-     *
-     * @deprecated  5.0 Use the #[AsCommand] attribute instead
-     */
-    protected static $defaultName;
-
-    /**
      * The command's aliases.
      *
      * @var    string[]
@@ -68,12 +58,12 @@ abstract class AbstractCommand
     private bool $applicationDefinitionMergedWithArgs = false;
 
     /**
-     * Per-class cache of whether the class declares `$defaultName` and of its `#[AsCommand]` attribute.
+     * Per-class cache of the `#[AsCommand]` attribute.
      *
-     * @var    array<string, array{declaresDefaultName: bool, attribute: AsCommand|null}>
+     * @var    array<string, array{attribute: AsCommand|null}>
      * @since  __DEPLOY_VERSION__
      */
-    private static $classMetadata = [];
+    private static array $classMetadata = [];
 
     /**
      * The command's input definition.
@@ -146,7 +136,7 @@ abstract class AbstractCommand
 
         if ($name === null && null !== $name = static::getDefaultName()) {
             // A name read from the #[AsCommand] attribute may carry aliases and the hidden flag: "|name|alias"
-            if ($metadata['attribute'] !== null && !$metadata['declaresDefaultName']) {
+            if ($metadata['attribute'] !== null) {
                 $aliases = explode('|', $metadata['attribute']->name);
 
                 if ($aliases[0] === '') {
@@ -307,8 +297,7 @@ abstract class AbstractCommand
      *
      * This allows a command name to defined and referenced without instantiating the full command class.
      *
-     * The name is read from the static `$defaultName` property if the class declares it, otherwise from the class' `#[AsCommand]`
-     * attribute. Neither is inherited from a parent class.
+     * The name is read from the class' `#[AsCommand]` attribute, which is not inherited from a parent class.
      *
      * @return  string|null
      *
@@ -317,23 +306,6 @@ abstract class AbstractCommand
     public static function getDefaultName(): ?string
     {
         $metadata = self::getClassMetadata(static::class);
-
-        if ($metadata['declaresDefaultName']) {
-            // @phpstan-ignore staticProperty.deprecated
-            $defaultName = static::$defaultName;
-
-            if ($defaultName !== null) {
-                trigger_deprecation(
-                    'joomla/console',
-                    '__DEPLOY_VERSION__',
-                    'Naming a command with the static $defaultName property is deprecated and will not be supported in 5.0, add the %s attribute to %s instead.',
-                    AsCommand::class,
-                    static::class
-                );
-            }
-
-            return $defaultName;
-        }
 
         if ($metadata['attribute'] === null) {
             return null;
@@ -646,7 +618,7 @@ abstract class AbstractCommand
      *
      * @param   string  $class  The command class
      *
-     * @return  array{declaresDefaultName: bool, attribute: AsCommand|null}
+     * @return  array{attribute: AsCommand|null}
      *
      * @since   __DEPLOY_VERSION__
      */
@@ -656,8 +628,7 @@ abstract class AbstractCommand
             $attributes = (new \ReflectionClass($class))->getAttributes(AsCommand::class);
 
             self::$classMetadata[$class] = [
-                'declaresDefaultName' => (new \ReflectionProperty($class, 'defaultName'))->class === $class,
-                'attribute'           => $attributes ? $attributes[0]->newInstance() : null,
+                'attribute' => $attributes ? $attributes[0]->newInstance() : null,
             ];
         }
 

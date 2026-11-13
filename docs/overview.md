@@ -112,10 +112,10 @@ there are several console specific events:
 
 ## Things to know before you build on this
 
-**Name a command with `#[AsCommand]` or `$defaultName`.** Since 4.1, `AbstractCommand` reads Symfony's
-`#[AsCommand]` attribute: the name (including the `name|alias` syntax and a leading `|` for a hidden command), `aliases`,
-`hidden`, `description` and `help` (which needs Symfony 7.4 or later); `usages` is not supported. In 4.0 the
-attribute was ignored, and a command annotated only with it had no name.
+**Name a command with `#[AsCommand]`.** `AbstractCommand` reads Symfony's `#[AsCommand]` attribute: the name
+(including the `name|alias` syntax and a leading `|` for a hidden command), `aliases`, `hidden`, `description` and `help`
+(which needs Symfony 7.4 or later); `usages` is not supported. The static `$defaultName` property that 4.x also read is
+no longer supported; a command that only declares it has no name.
 
 ```php
 use Joomla\Console\Command\AbstractCommand;
@@ -128,13 +128,10 @@ final class MyCommand extends AbstractCommand
 }
 ```
 
-The static `$defaultName` property still works, but is deprecated since 4.1 and triggers a deprecation notice; it will
-not be read in 5.0. If a class declares both, `$defaultName` provides the name and the
-attribute's aliases and hidden flag are not used; a name passed to the constructor takes precedence over both. Anything
-set in `configure()` overrides the attribute.
+A name passed to the constructor takes precedence over the attribute, and anything set in `configure()` overrides it.
 
-`getDefaultName()` only looks at the class being asked, so a subclass inherits neither the attribute nor the
-`$defaultName` of its parent — give every concrete command its own.
+`getDefaultName()` only looks at the class being asked, so a subclass does not inherit the attribute of its parent —
+give every concrete command its own.
 
 **There is no signal handling.** A `SIGTERM` during a long-running command — a deployment, a
 supervisor restart — kills the process wherever it happens to be. Add it yourself for anything that

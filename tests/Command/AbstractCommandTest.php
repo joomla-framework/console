@@ -11,7 +11,6 @@ use Joomla\Console\Application;
 use Joomla\Console\Command\AbstractCommand;
 use Joomla\Console\Tests\Fixtures\Command\AttributeCommand;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -136,9 +135,7 @@ class AbstractCommandTest extends TestCase
 
     public function testTheDefaultCommandNameIsRetrieved()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'test:command';
-
+        $command = new #[AsCommand(name: 'test:command')] class () extends AbstractCommand {
             protected function doExecute(InputInterface $input, OutputInterface $output): int
             {
                 return 0;
@@ -146,46 +143,6 @@ class AbstractCommandTest extends TestCase
         };
 
         $this->assertSame('test:command', $command::getDefaultName());
-    }
-
-    #[IgnoreDeprecations]
-    public function testTheDefaultNamePropertyIsDeprecated()
-    {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'test:command';
-
-            protected function doExecute(InputInterface $input, OutputInterface $output): int
-            {
-                return 0;
-            }
-        };
-
-        $this->expectUserDeprecationMessageMatches('/Naming a command with the static \$defaultName property is deprecated/');
-
-        $this->assertSame('test:command', $command::getDefaultName());
-    }
-
-    public function testTheAsCommandAttributeIsNotDeprecated()
-    {
-        $errors = [];
-
-        set_error_handler(
-            static function (int $errno, string $errstr) use (&$errors): bool {
-                $errors[] = $errstr;
-
-                return true;
-            },
-            E_USER_DEPRECATED
-        );
-
-        try {
-            $this->assertSame('test:attribute', AttributeCommand::getDefaultName());
-            new AttributeCommand();
-        } finally {
-            restore_error_handler();
-        }
-
-        $this->assertSame([], $errors);
     }
 
     public function testTheDefaultCommandNameIsReadFromTheAsCommandAttribute()
@@ -238,10 +195,9 @@ class AbstractCommandTest extends TestCase
         $this->assertTrue($command->isHidden());
     }
 
-    public function testTheDefaultNamePropertyTakesPrecedenceOverTheAsCommandAttribute()
+    public function testTheDefaultNamePropertyIsNotRead()
     {
-        $command = new #[AsCommand(name: 'test:attribute|test:attr', description: 'Attribute description')]
-        class () extends AbstractCommand {
+        $command = new class () extends AbstractCommand {
             protected static $defaultName = 'test:property';
 
             protected function doExecute(InputInterface $input, OutputInterface $output): int
@@ -250,10 +206,8 @@ class AbstractCommandTest extends TestCase
             }
         };
 
-        $this->assertSame('test:property', $command::getDefaultName());
-        $this->assertSame('test:property', $command->getName());
-        $this->assertSame([], $command->getAliases());
-        $this->assertSame('Attribute description', $command->getDescription());
+        $this->assertNull($command::getDefaultName());
+        $this->assertNull($command->getName());
     }
 
     public function testTheConfigureMethodOverridesTheAsCommandAttribute()
@@ -302,9 +256,7 @@ class AbstractCommandTest extends TestCase
 
     public function testTheCommandHelpIsProcessed()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'test:command';
-
+        $command = new #[AsCommand(name: 'test:command')] class () extends AbstractCommand {
             protected function doExecute(InputInterface $input, OutputInterface $output): int
             {
                 return 0;
@@ -322,9 +274,7 @@ class AbstractCommandTest extends TestCase
 
     public function testTheCommandSynopsisIsProcessed()
     {
-        $command = new class () extends AbstractCommand {
-            protected static $defaultName = 'test:command';
-
+        $command = new #[AsCommand(name: 'test:command')] class () extends AbstractCommand {
             protected function doExecute(InputInterface $input, OutputInterface $output): int
             {
                 return 0;

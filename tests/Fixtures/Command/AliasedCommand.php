@@ -8,21 +8,16 @@
 namespace Joomla\Console\Tests\Fixtures\Command;
 
 use Joomla\Console\Command\AbstractCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Internal test command to test alias support.
  */
+#[AsCommand(name: 'test:aliased')]
 final class AliasedCommand extends AbstractCommand
 {
-    /**
-     * The default command name
-     *
-     * @var  string
-     */
-    protected static $defaultName = 'test:aliased';
-
     /**
      * Configure the command.
      *

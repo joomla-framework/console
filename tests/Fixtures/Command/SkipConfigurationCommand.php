@@ -8,21 +8,16 @@
 namespace Joomla\Console\Tests\Fixtures\Command;
 
 use Joomla\Console\Command\AbstractCommand;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Internal test command to test handling of a command not configuring itself correctly.
  */
+#[AsCommand(name: 'test:skip-configure')]
 final class SkipConfigurationCommand extends AbstractCommand
 {
-    /**
-     * The default command name
-     *
-     * @var  string
-     */
-    protected static $defaultName = 'test:skip-configure';
-
     /**
      * Command constructor.
      */
