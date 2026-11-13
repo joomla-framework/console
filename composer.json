@@ -10,19 +10,20 @@
         "joomla/application": "^4.0",
         "joomla/event": "^4.0",
         "joomla/string": "^4.0",
-        "symfony/console": "^v7.0.0",
-        "symfony/error-handler": "^7"
+        "symfony/console": "^7.0 || ^8.0"
     },
     "require-dev": {
         "joomla/test": "^4.0",
         "phpunit/phpunit": "^12.5 || ^13.0",
         "psr/container": "^2.0",
         "squizlabs/php_codesniffer": "^4.0",
+        "symfony/error-handler": "^7.0 || ^8.0",
         "phpstan/phpstan": "^2.1.17",
         "phpstan/phpstan-deprecation-rules": "^2.0.3"
     },
     "suggest": {
-        "psr/container-implementation": "To use the ContainerLoader"
+        "psr/container-implementation": "To use the ContainerLoader",
+        "symfony/error-handler": "To route uncaught exceptions to the application when the Symfony ErrorHandler is registered"
     },
     "autoload": {
         "psr-4": {
@@ -34,5 +35,6 @@
             "Joomla\\Console\\Tests\\": "tests/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
