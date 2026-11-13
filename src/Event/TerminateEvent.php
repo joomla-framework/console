@@ -26,7 +26,7 @@ class TerminateEvent extends ConsoleEvent
      * @var    integer
      * @since  2.0.0
      */
-    private $exitCode;
+    private int $exitCode;
 
     /**
      * Event constructor.

@@ -31,7 +31,7 @@ class DescriptorHelper extends Helper
      *
      * @since   2.0.0
      */
-    public function describe(OutputInterface $output, $object, array $options = [])
+    public function describe(OutputInterface $output, object $object, array $options = []): void
     {
         (new TextDescriptor())->describe($output, $object, $options);
     }

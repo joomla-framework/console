@@ -35,7 +35,7 @@ class HelpCommand extends AbstractCommand
      * @var    AbstractCommand|null
      * @since  2.0.0
      */
-    private $command;
+    private ?AbstractCommand $command = null;
 
     /**
      * Configure the command.

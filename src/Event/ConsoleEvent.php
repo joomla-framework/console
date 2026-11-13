@@ -26,7 +26,7 @@ class ConsoleEvent extends Event
      * @var    Application
      * @since  2.0.0
      */
-    private $application;
+    private Application $application;
 
     /**
      * The command being executed.
@@ -34,7 +34,7 @@ class ConsoleEvent extends Event
      * @var    AbstractCommand|null
      * @since  2.0.0
      */
-    private $command;
+    private ?AbstractCommand $command;
 
     /**
      * Event constructor.

@@ -56,7 +56,7 @@ class Application extends AbstractApplication
      * @var    boolean
      * @since  2.0.0
      */
-    private $autoExit = true;
+    private bool $autoExit = true;
 
     /**
      * Flag indicating the application should catch and handle Throwables.
@@ -64,7 +64,7 @@ class Application extends AbstractApplication
      * @var    boolean
      * @since  2.0.0
      */
-    private $catchThrowables = true;
+    private bool $catchThrowables = true;
 
     /**
      * The available commands.
@@ -72,7 +72,7 @@ class Application extends AbstractApplication
      * @var    AbstractCommand[]
      * @since  2.0.0
      */
-    private $commands = [];
+    private array $commands = [];
 
     /**
      * The command loader.
@@ -80,7 +80,7 @@ class Application extends AbstractApplication
      * @var    Loader\LoaderInterface|null
      * @since  2.0.0
      */
-    private $commandLoader;
+    private ?Loader\LoaderInterface $commandLoader = null;
 
     /**
      * Console input handler.
@@ -88,7 +88,7 @@ class Application extends AbstractApplication
      * @var    InputInterface
      * @since  2.0.0
      */
-    private $consoleInput;
+    private InputInterface $consoleInput;
 
     /**
      * Console output handler.
@@ -96,7 +96,7 @@ class Application extends AbstractApplication
      * @var    OutputInterface
      * @since  2.0.0
      */
-    private $consoleOutput;
+    private OutputInterface $consoleOutput;
 
     /**
      * The default command for the application.
@@ -104,7 +104,7 @@ class Application extends AbstractApplication
      * @var    string
      * @since  2.0.0
      */
-    private $defaultCommand = 'list';
+    private string $defaultCommand = 'list';
 
     /**
      * The application input definition.
@@ -112,7 +112,7 @@ class Application extends AbstractApplication
      * @var    InputDefinition|null
      * @since  2.0.0
      */
-    private $definition;
+    private ?InputDefinition $definition = null;
 
     /**
      * The application helper set.
@@ -120,7 +120,7 @@ class Application extends AbstractApplication
      * @var    HelperSet|null
      * @since  2.0.0
      */
-    private $helperSet;
+    private ?HelperSet $helperSet = null;
 
     /**
      * Internal flag tracking if the command store has been initialised.
@@ -128,7 +128,7 @@ class Application extends AbstractApplication
      * @var    boolean
      * @since  2.0.0
      */
-    private $initialised = false;
+    private bool $initialised = false;
 
     /**
      * The name of the application.
@@ -136,7 +136,7 @@ class Application extends AbstractApplication
      * @var    string
      * @since  2.0.0
      */
-    private $name = '';
+    private string $name = '';
 
     /**
      * Reference to the currently running command.
@@ -144,7 +144,7 @@ class Application extends AbstractApplication
      * @var    AbstractCommand|null
      * @since  2.0.0
      */
-    private $runningCommand;
+    private ?AbstractCommand $runningCommand = null;
 
     /**
      * The console terminal helper.
@@ -152,7 +152,7 @@ class Application extends AbstractApplication
      * @var    Terminal
      * @since  2.0.0
      */
-    private $terminal;
+    private Terminal $terminal;
 
     /**
      * The version of the application.
@@ -160,7 +160,7 @@ class Application extends AbstractApplication
      * @var    string
      * @since  2.0.0
      */
-    private $version = '';
+    private string $version = '';
 
     /**
      * Internal flag tracking if the user is seeking help for the given command.
@@ -168,7 +168,7 @@ class Application extends AbstractApplication
      * @var    boolean
      * @since  2.0.0
      */
-    private $wantsHelp = false;
+    private bool $wantsHelp = false;
 
     /**
      * Class constructor.
@@ -385,7 +385,7 @@ class Application extends AbstractApplication
      * @since   2.0.0
      * @throws  \Throwable
      */
-    public function execute()
+    public function execute(): void
     {
         putenv('LINES=' . $this->terminal->getHeight());
         putenv('COLUMNS=' . $this->terminal->getWidth());
